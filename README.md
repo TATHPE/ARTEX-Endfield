@@ -13,6 +13,24 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）
 
 ---
 
+> ## 🎨 本 fork 的改动：终末地（Arknights: Endfield）风格版
+>
+> 本仓库是上游 ARTEX 的 fork，除上游功能外，额外实现了**终末地风格的界面皮肤、窗口内开屏动画、登录后加载页与应用图标**。上游功能、API、数据库结构**完全保留**；改动**只集中在 `web/`**（后端逻辑未动），落在单个提交（分支 `endfield-theme`）。
+>
+> | 改动 | 位置 |
+> | --- | --- |
+> | 终末地令牌预设（零圆角 / 零软阴影 / 纸底黄只作标记） | `web/src/styles/presets/endfield.css` |
+> | 皮肤层（颗粒、扫描线、切角面板、危险条纹、等宽读数、克制动效） | `web/src/styles/endfield-skin.css` |
+> | **开屏动画**（在应用窗口内播放，预渲染首帧） | `web/src/components/boot-sequence.tsx` + `web/src/styles/boot-sequence.css` |
+> | **登录后加载页**（窗口内播放，**每次密码登录播一次**） | `web/src/components/workbench-loader.tsx` + `web/src/styles/workbench-loader.css` |
+> | 自托管字体（Barlow Condensed + DM Mono，无需联网） | `web/src/lib/fonts/endfield/*.woff2`、`web/src/lib/fonts/registry.ts` |
+>
+> 身份标识：**开屏动画**用「项目 Logo × 三角徽标（终末地 / ENDFIELD INDUSTRIES）」；**加载页与桌面图标**用同一三角徽标、文字为 **ARTEX**。
+>
+> 📄 **完整说明（改动清单、构建步骤、运行方式、密钥与口令处理约定、与上游同步方法）见 [`docs/ENDFIELD-THEME.md`](docs/ENDFIELD-THEME.md)。**
+
+---
+
 ## 截图预览
 
 > 完整交互见[在线 Demo](https://artex-demo.vercel.app/)。
