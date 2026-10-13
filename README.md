@@ -27,7 +27,7 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）
 >
 > 身份标识：**开屏动画**用「项目 Logo × 三角徽标（终末地 / ENDFIELD INDUSTRIES）」；**加载页与桌面图标**用同一三角徽标、文字为 **ARTEX**。
 >
-> 📄 **完整说明（改动清单、构建步骤、运行方式、密钥与口令处理约定、与上游同步方法）见 [`docs/ENDFIELD-THEME.md`](docs/ENDFIELD-THEME.md)。**
+> 📄 **完整说明（改动清单、构建步骤、运行方式、密钥与口令处理约定、与上游同步方法）见 [`ENDFIELD-THEME.md`](ENDFIELD-THEME.md)。**
 
 ---
 
