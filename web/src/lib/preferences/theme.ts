@@ -28,6 +28,14 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
+    label: "Endfield",
+    value: "endfield",
+    primary: {
+      light: "#F4ED17",
+      dark: "#F4ED17",
+    },
+  },
+  {
     label: "Soft Pop",
     value: "soft-pop",
     primary: {

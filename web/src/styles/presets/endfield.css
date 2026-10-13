@@ -1,0 +1,160 @@
+/*
+label: Endfield
+value: endfield
+*/
+/* ============================================================================
+   Endfield theme tokens for ARTEX  —  values taken from the reference atlas
+   (see the terminati-design skill's DESIGN-TOKENS.md, extracted from
+   weepwood.github.io/arkfield-design-atlas, a third-party study, NOT an
+   official brand spec).
+
+   Discipline (from the skill):
+     * the main yellow is an accent for key states, focus and hazard marks —
+       it is never spread over large surfaces, and on the warm-white paper it is
+       a fill rather than body text (yellow text on paper is unreadable);
+     * the crystal blue is the restrained secondary;
+     * no rounded corners, no soft shadows, only two font stacks.
+
+   How that maps onto shadcn tokens:
+     --primary            the filled key action. On paper this is the ink layer
+                          (near-black panel + warm-white label) so the accent is
+                          not spread; on the ink surface it is the yellow.
+     --accent             hover/selected SURFACE (a muted warm grey), not a brand
+                          colour — the blue lives in --ef-blue and the charts.
+     --ring               focus = the yellow accent on both surfaces.
+   Texture, chrome and motion live in styles/endfield-skin.css.
+   ========================================================================== */
+
+:root[data-theme-preset="endfield"] {
+  /* --- atlas tokens (verbatim from DESIGN-TOKENS.md) --- */
+  --ef-black: #111416;
+  --ef-black-2: #151719;
+  --ef-paper: #E8E8E2;
+  --ef-panel: #F3F3ED;
+  --ef-muted: #646766;
+  --ef-accent: #F4ED17;
+  --ef-accent-ink: #111416;
+  --ef-blue: #57BACD;
+  --ef-border: rgba(20, 23, 25, 0.17);
+  --ef-grain: 0.26;
+  --ef-tracking: -4px;
+  --ef-speed: 1;
+
+  /* --- the atlas has exactly two font stacks: condensed headings + mono data.
+         The files are self-hosted (see lib/fonts/registry.ts). --- */
+  --font-condensed: var(--font-barlow-condensed), "Arial Narrow", Impact, sans-serif;
+  --font-mono: var(--font-dm-mono), Consolas, monospace;
+  --font-sans: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+
+  /* --- hard corners: the atlas has no rounded panels --- */
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  /* --- no soft shadows: separation comes from 1px rulers and chamfers --- */
+  --shadow-2xs: none;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+
+  /* --- surfaces (light = paper) --- */
+  --background: #E8E8E2;
+  --foreground: #151719;
+  --card: #F3F3ED;
+  --card-foreground: #151719;
+  --popover: #F3F3ED;
+  --popover-foreground: #151719;
+
+  /* key action = ink layer on paper; the yellow stays a mark */
+  --primary: #111416;
+  --primary-foreground: #E8E8E2;
+  --secondary: #DEDED6;
+  --secondary-foreground: #151719;
+  --muted: #E1E1D9;
+  --muted-foreground: #646766;
+  /* hover / selected surface, not a brand colour */
+  --accent: #E1E1D9;
+  --accent-foreground: #151719;
+
+  /* restrained warning colour, not a saturated red */
+  --destructive: #B23A1F;
+  --border: rgba(20, 23, 25, 0.17);
+  --input: rgba(20, 23, 25, 0.24);
+  --ring: #F4ED17;
+
+  /* charts: crystal blue, ink, yellow, muted, restrained orange */
+  --chart-1: #57BACD;
+  --chart-2: #151719;
+  --chart-3: #F4ED17;
+  --chart-4: #646766;
+  --chart-5: #A8622A;
+
+  /* severity: low-saturation, engineering readouts rather than alarm lights */
+  --severity-critical: #A8321B;
+  --severity-high: #C2622A;
+  --severity-medium: #8A6A24;
+  --severity-low: #5A6B70;
+
+  /* sidebar = the deepest ink layer, as in the atlas */
+  --sidebar: #111416;
+  --sidebar-foreground: #E8E8E2;
+  --sidebar-primary: #F4ED17;
+  --sidebar-primary-foreground: #111416;
+  --sidebar-accent: #1D2124;
+  --sidebar-accent-foreground: #F4ED17;
+  --sidebar-border: rgba(232, 232, 226, 0.14);
+  --sidebar-ring: #F4ED17;
+}
+
+/* --- dark mode = the atlas ink surface: here the yellow becomes the key action */
+.dark:root[data-theme-preset="endfield"] {
+  --background: #171A1D;
+  --foreground: #E8ECEB;
+  --card: #212529;
+  --card-foreground: #E8ECEB;
+  --popover: #212529;
+  --popover-foreground: #E8ECEB;
+
+  --primary: #F4ED17;
+  --primary-foreground: #111416;
+  --secondary: #2A2F33;
+  --secondary-foreground: #E8ECEB;
+  --muted: #262B2F;
+  --muted-foreground: #A0A5A8;
+  --accent: #2A2F33;
+  --accent-foreground: #E8ECEB;
+
+  --destructive: #C2622A;
+  --border: rgba(234, 238, 238, 0.17);
+  --input: rgba(234, 238, 238, 0.24);
+  --ring: #F4ED17;
+
+  --chart-1: #57BACD;
+  --chart-2: #E8ECEB;
+  --chart-3: #F4ED17;
+  --chart-4: #A0A5A8;
+  --chart-5: #C2622A;
+
+  --severity-critical: #D0654A;
+  --severity-high: #D98A4E;
+  --severity-medium: #C8A24A;
+  --severity-low: #8A9599;
+
+  --sidebar: #0E1113;
+  --sidebar-foreground: #E8ECEB;
+  --sidebar-primary: #F4ED17;
+  --sidebar-primary-foreground: #111416;
+  --sidebar-accent: #1B2023;
+  --sidebar-accent-foreground: #F4ED17;
+  --sidebar-border: rgba(232, 236, 235, 0.14);
+  --sidebar-ring: #F4ED17;
+}

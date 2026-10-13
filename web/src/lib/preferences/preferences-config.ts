@@ -67,8 +67,9 @@ type PreferencePersistenceConfig = {
  */
 export const PREFERENCE_DEFAULTS: PreferenceValueMap = {
   theme_mode: "light",
-  theme_preset: "default",
-  font: "geist",
+  // Endfield is the shipped look of this build; the other presets stay available.
+  theme_preset: "endfield",
+  font: "endfield",
   content_layout: "full-width",
   navbar_style: "sticky",
   sidebar_variant: "floating",

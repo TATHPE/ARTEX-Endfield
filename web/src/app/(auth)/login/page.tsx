@@ -70,6 +70,12 @@ export default function LoginPage() {
     try {
       const { token } = await api.login("ARTEX", password);
       auth.setToken(token);
+      // Plays the workbench loading screen once, on every password sign-in.
+      try {
+        sessionStorage.setItem("artex_show_workbench_loader", "1");
+      } catch {
+        /* ignore */
+      }
       window.location.replace("/function/tasks");
     } catch {
       setError("用户名或密码错误");

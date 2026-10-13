@@ -1,0 +1,323 @@
+/* Workbench loading screen (after sign-in), inside the app window.
+   Composition follows the reference loading screen: heavy industrial haze,
+   ridge silhouettes, a huge outlined watermark, the survey-triangle emblem, a
+   left rail, a TIPS block and a long animated progress bar on the bottom edge.
+   Scoped to .ef-load; Endfield tokens only (ink / warm white / main yellow). */
+
+.ef-load {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  overflow: hidden;
+  background: #0B0D0F;
+  color: #E8E8E2;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+/* --------------------------------------------------------------- background */
+.ef-load__sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 55% at 62% 38%, rgba(232, 232, 226, .16), transparent 62%),
+    radial-gradient(45% 40% at 18% 70%, rgba(244, 237, 23, .05), transparent 70%),
+    linear-gradient(180deg, #1A1E21 0%, #14181B 42%, #0B0D0F 100%);
+}
+
+.ef-load__watermark {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 6px;
+  text-align: center;
+  pointer-events: none;
+  opacity: .14;
+  white-space: nowrap;
+}
+
+.ef-load__watermark span:first-child {
+  font-family: var(--font-barlow-condensed, "Arial Narrow", sans-serif);
+  font-size: clamp(120px, 20vw, 300px);
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(232, 232, 226, .85);
+}
+
+.ef-load__watermark span:last-child {
+  font-size: clamp(22px, 4.4vw, 68px);
+  font-weight: 500;
+  letter-spacing: .3em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(232, 232, 226, .65);
+}
+
+.ef-load__ridge {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.ef-load__ridge--far {
+  height: 62%;
+  background: linear-gradient(180deg, rgba(232, 232, 226, .10), rgba(11, 13, 15, .9));
+  clip-path: polygon(0 58%, 12% 44%, 22% 51%, 33% 34%, 44% 46%, 55% 28%, 66% 42%, 78% 30%, 88% 45%, 100% 38%, 100% 100%, 0 100%);
+  opacity: .8;
+}
+
+.ef-load__ridge--near {
+  height: 44%;
+  background: linear-gradient(180deg, #14181B, #07090A);
+  clip-path: polygon(0 76%, 10% 60%, 20% 68%, 31% 52%, 43% 66%, 56% 48%, 68% 62%, 80% 50%, 92% 66%, 100% 58%, 100% 100%, 0 100%);
+}
+
+.ef-load__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .2;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------------- brand */
+.ef-load__brand {
+  position: absolute;
+  left: 40px;
+  top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ef-load__brand img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.ef-load__brand b {
+  display: block;
+  font-family: var(--font-barlow-condensed, "Arial Narrow", sans-serif);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  line-height: 1;
+}
+
+.ef-load__brand span {
+  display: block;
+  margin-top: 4px;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  color: rgba(232, 232, 226, .55);
+}
+
+/* -------------------------------------------------------------------- rail */
+.ef-load__rail {
+  position: absolute;
+  left: 46px;
+  top: 30%;
+  bottom: 22%;
+  width: 1px;
+  background: rgba(232, 232, 226, .22);
+}
+
+.ef-load__rail i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #F4ED17;
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+.ef-load__rail b {
+  position: absolute;
+  left: 10px;
+  top: -16px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: rgba(232, 232, 226, .6);
+}
+
+/* ----------------------------------------------------------------- emblem */
+.ef-load__emblem {
+  position: absolute;
+  right: clamp(60px, 12vw, 260px);
+  top: 50%;
+  width: min(30vw, 330px);
+  height: auto;
+  transform: translateY(-52%);
+  opacity: .95;
+}
+
+.ef-load__tri { fill: rgba(232, 232, 226, .05); stroke: rgba(232, 232, 226, .6); stroke-width: 5; }
+.ef-load__contour { fill: none; stroke: rgba(232, 232, 226, .32); stroke-width: 3.5; }
+.ef-load__ribs path { stroke: rgba(232, 232, 226, .26); stroke-width: 4; }
+.ef-load__band { fill: #E8E8E2; }
+.ef-load__word {
+  fill: #111416;
+  font-family: var(--font-barlow-condensed, "Arial Narrow", sans-serif);
+  font-size: 118px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.ef-load__rule path { stroke: rgba(232, 232, 226, .5); stroke-width: 3; }
+.ef-load__caption {
+  fill: rgba(232, 232, 226, .74);
+  font-family: var(--font-mono, monospace);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 3.2px;
+}
+
+/* ------------------------------------------------------------------- tips */
+.ef-load__tips {
+  position: absolute;
+  left: 46px;
+  bottom: 22%;
+  max-width: min(42vw, 520px);
+}
+
+.ef-load__tips-chip {
+  display: inline-block;
+  padding: 3px 7px;
+  background: #F4ED17;
+  color: #111416;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+
+.ef-load__tips h3 {
+  margin: 10px 0 6px;
+  font-family: var(--font-condensed, var(--font-barlow-condensed), sans-serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: #E8E8E2;
+}
+
+.ef-load__tips p {
+  margin: 0;
+  font-family: var(--font-cjk, "Microsoft YaHei", sans-serif);
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(232, 232, 226, .82);
+  animation: ef-load-fade 400ms ease-out both;
+}
+
+@keyframes ef-load-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* -------------------------------------------------------------- progress bar */
+.ef-load__bar {
+  position: absolute;
+  left: 46px;
+  right: 46px;
+  bottom: 74px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ef-load__bar-track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 7px;
+  background: rgba(232, 232, 226, .14);
+  overflow: hidden;
+}
+
+.ef-load__bar-fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: linear-gradient(90deg, #F4ED17 0%, #E8E8E2 100%);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+.ef-load__bar-shimmer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: repeating-linear-gradient(
+    115deg,
+    rgba(17, 20, 22, .55) 0 6px,
+    transparent 6px 14px
+  );
+  animation: ef-load-shimmer 1.1s linear infinite;
+}
+
+@keyframes ef-load-shimmer {
+  from { transform: translateX(-14px); }
+  to { transform: translateX(0); }
+}
+
+.ef-load__bar-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.ef-load__bar-caption span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  color: #F4ED17;
+}
+
+.ef-load__bar-caption b {
+  width: 14px;
+  height: 14px;
+  background: #E8E8E2;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.ef-load__dotted {
+  position: absolute;
+  left: 46px;
+  right: 46px;
+  bottom: 66px;
+  height: 1px;
+  background-image: repeating-linear-gradient(90deg, rgba(232, 232, 226, .34) 0 3px, transparent 3px 7px);
+}
+
+/* ------------------------------------------------------------------- meta */
+.ef-load__meta {
+  position: absolute;
+  left: 46px;
+  bottom: 38px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: rgba(232, 232, 226, .62);
+}
+
+.ef-load__ms { color: #F4ED17; font-weight: 500; }
+
+@media (max-width: 900px) {
+  .ef-load__tips { bottom: 28%; max-width: 70vw; }
+  .ef-load__emblem { right: 24px; width: 40vw; top: 34%; }
+  .ef-load__rail { left: 24px; }
+  .ef-load__brand, .ef-load__bar, .ef-load__dotted, .ef-load__meta, .ef-load__tips { left: 24px; }
+  .ef-load__bar, .ef-load__dotted { right: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ef-load__bar-shimmer { animation: none; }
+}

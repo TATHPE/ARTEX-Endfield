@@ -1,0 +1,570 @@
+/* ============================================================================
+   Endfield skin for ARTEX — surface texture, industrial chrome and motion.
+
+   Everything here is scoped to [data-theme-preset="endfield"], so the three
+   upstream presets are untouched. Colours, radii and fonts come from
+   styles/presets/endfield.css; this file only adds the visual language the
+   atlas actually contains: grain, scan lines, crosshair marks, chamfered
+   panels, a hazard stripe, thin rulers, mono readouts, restrained motion.
+   No neon, no glow, no soft shadows.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- keyframes */
+@keyframes ef-panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ef-scan-drift {
+  from { background-position: 0 0; }
+  to { background-position: 0 120px; }
+}
+@keyframes ef-ruler-drift {
+  from { background-position: 0 0; }
+  to { background-position: 16px 0; }
+}
+@keyframes ef-sweep {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(220%); }
+}
+@keyframes ef-pulse {
+  0%, 100% { opacity: .45; }
+  50% { opacity: 1; }
+}
+@keyframes ef-blip {
+  0%, 93%, 100% { opacity: 1; }
+  95% { opacity: .5; }
+  97% { opacity: 1; }
+}
+@keyframes ef-dash {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -24; }
+}
+
+/* ------------------------------------------------------------------- palette */
+:root[data-theme-preset="endfield"] {
+  --ef-mark: color-mix(in srgb, var(--foreground) 42%, transparent);
+  --ef-hazard: repeating-linear-gradient(
+    135deg,
+    var(--ef-accent) 0 6px,
+    var(--ef-black) 6px 12px
+  );
+  --ef-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* -------------------------------------------------- screen texture (overlay) */
+[data-theme-preset="endfield"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: var(--ef-grain);
+  mix-blend-mode: multiply;
+  background-image: var(--ef-grain-image);
+  animation: ef-panel-in calc(700ms * var(--ef-speed)) ease-out both;
+}
+
+[data-theme-preset="endfield"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(17, 20, 22, .05) 0 1px,
+    transparent 1px 3px
+  );
+  animation: ef-scan-drift calc(9s / var(--ef-speed)) linear infinite;
+}
+
+.dark:root[data-theme-preset="endfield"] body::before {
+  mix-blend-mode: screen;
+  opacity: calc(var(--ef-grain) * .6);
+}
+
+.dark:root[data-theme-preset="endfield"] body::after {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(232, 236, 235, .045) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* --------------------------------------------------------------- typography */
+[data-theme-preset="endfield"] h1,
+[data-theme-preset="endfield"] h2,
+[data-theme-preset="endfield"] h3,
+[data-theme-preset="endfield"] h4 {
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: -.02em;
+}
+
+[data-theme-preset="endfield"] h1 { letter-spacing: -.035em; }
+
+[data-theme-preset="endfield"] :is(
+  [data-slot="card-title"],
+  [data-slot="dialog-title"],
+  [data-slot="alert-dialog-title"],
+  [data-slot="sheet-title"],
+  [data-slot="drawer-title"]
+) {
+  font-family: var(--font-condensed);
+  text-transform: uppercase;
+  letter-spacing: .015em;
+}
+
+/* The atlas labels sections like "06 / DESIGN GUIDELINES". A bare slash marker
+   is used here — decoration only, no invented numbering or data. */
+[data-theme-preset="endfield"] :is(
+  [data-slot="card-title"],
+  [data-slot="dialog-title"],
+  [data-slot="sheet-title"]
+)::before {
+  content: "// ";
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--ef-accent);
+}
+
+[data-theme-preset="endfield"] :is(code, kbd, samp, pre, [data-slot="badge"], [data-slot="table-head"]) {
+  font-family: var(--font-mono);
+}
+
+[data-theme-preset="endfield"] body {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+}
+
+[data-theme-preset="endfield"] ::selection {
+  background: var(--ef-accent);
+  color: var(--ef-accent-ink);
+}
+
+/* --------------------------------------------- chamfered panels + crosshairs */
+[data-theme-preset="endfield"] :is(
+  [data-slot="card"],
+  [data-slot="alert"],
+  [data-slot="bubble-content"],
+  [data-slot="attachment"]
+) {
+  position: relative;
+  border: 1px solid var(--border);
+  clip-path: polygon(
+    12px 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%,
+    0 12px
+  );
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--foreground) 3.5%, transparent),
+    transparent 42%
+  );
+  animation: ef-panel-in calc(260ms * var(--ef-speed)) cubic-bezier(.2, .8, .2, 1) both;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="card"], [data-slot="alert"])::before,
+[data-theme-preset="endfield"] :is([data-slot="card"], [data-slot="alert"])::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  opacity: .55;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="card"], [data-slot="alert"])::before {
+  top: 6px;
+  left: 6px;
+  border-top: 1px solid var(--ef-mark);
+  border-left: 1px solid var(--ef-mark);
+}
+
+[data-theme-preset="endfield"] :is([data-slot="card"], [data-slot="alert"])::after {
+  right: 6px;
+  bottom: 6px;
+  border-right: 1px solid var(--ef-mark);
+  border-bottom: 1px solid var(--ef-mark);
+}
+
+/* hazard stripe on panel headers */
+[data-theme-preset="endfield"] :is([data-slot="card-header"], [data-slot="alert-dialog-header"], [data-slot="sheet-header"]) {
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  padding-top: calc(var(--spacing, .25rem) * 5);
+}
+
+[data-theme-preset="endfield"] :is([data-slot="card-header"], [data-slot="alert-dialog-header"], [data-slot="sheet-header"])::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--ef-hazard);
+  opacity: .85;
+}
+
+/* ------------------------------------------------------------------- buttons */
+[data-theme-preset="endfield"] [data-slot="button"] {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .12s ease;
+}
+
+[data-theme-preset="endfield"] [data-slot="button"]:active {
+  transform: translateY(1px);
+}
+
+[data-theme-preset="endfield"] [data-slot="button"]:focus-visible,
+[data-theme-preset="endfield"] :is(input, textarea, [data-slot="select-trigger"]):focus-visible {
+  outline: 2px solid var(--ef-accent);
+  outline-offset: 1px;
+}
+
+/* -------------------------------------------------------------------- inputs */
+[data-theme-preset="endfield"] :is(
+  input,
+  textarea,
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"],
+  [data-slot="input-group-control"]
+) {
+  border-radius: 0;
+  font-family: var(--font-mono);
+}
+
+/* -------------------------------------------------------------------- badges */
+[data-theme-preset="endfield"] [data-slot="badge"] {
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  border: 1px solid var(--border);
+  animation: ef-blip calc(7s / var(--ef-speed)) steps(1, end) infinite;
+}
+
+/* -------------------------------------------------------------------- tables */
+[data-theme-preset="endfield"] :is([data-slot^="table"]) {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme-preset="endfield"] [data-slot="table-head"] {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .7rem;
+  color: var(--muted-foreground);
+}
+
+[data-theme-preset="endfield"] [data-slot="table-row"] {
+  transition: background-color .14s ease;
+}
+
+[data-theme-preset="endfield"] [data-slot="table-row"]:hover {
+  background-color: color-mix(in srgb, var(--ef-accent) 10%, transparent);
+}
+
+/* ------------------------------------------- overlays, dialogs, menus, cards */
+[data-theme-preset="endfield"] :is(
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"],
+  [data-slot="sheet-content"],
+  [data-slot="drawer-content"],
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="select-content"],
+  [data-slot="tooltip-content"],
+  [data-slot="command"]
+) {
+  border-radius: 0;
+  border: 1px solid var(--border);
+  animation: ef-panel-in calc(200ms * var(--ef-speed)) ease-out both;
+}
+
+[data-theme-preset="endfield"] [data-slot="dialog-content"]::before,
+[data-theme-preset="endfield"] [data-slot="sheet-content"]::before,
+[data-theme-preset="endfield"] [data-slot="drawer-content"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--ef-hazard);
+  opacity: .85;
+  pointer-events: none;
+}
+
+[data-theme-preset="endfield"] :is(
+  [data-slot="dialog-overlay"],
+  [data-slot="alert-dialog-overlay"],
+  [data-slot="sheet-overlay"],
+  [data-slot="drawer-overlay"]
+) {
+  background: color-mix(in srgb, var(--ef-black) 46%, transparent);
+  backdrop-filter: saturate(.65) blur(1px);
+}
+
+/* ------------------------------------------------------------------ sidebar */
+[data-theme-preset="endfield"] [data-slot="sidebar"] {
+  border-right: 1px solid var(--sidebar-border);
+}
+
+[data-theme-preset="endfield"] :is([data-slot^="sidebar-menu-button"], [data-slot^="sidebar-group-label"]) {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-size: .78rem;
+}
+
+[data-theme-preset="endfield"] [data-slot^="sidebar-menu-button"][data-active="true"] {
+  position: relative;
+  color: var(--ef-accent);
+}
+
+[data-theme-preset="endfield"] [data-slot^="sidebar-menu-button"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ef-accent);
+}
+
+[data-theme-preset="endfield"] [data-slot^="sidebar-menu-button"][data-active="true"]::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  background: var(--ef-accent);
+  animation: ef-pulse calc(2.4s / var(--ef-speed)) ease-in-out infinite;
+}
+
+/* hazard band under the sidebar header, the atlas' app-icon motif */
+[data-theme-preset="endfield"] [data-slot="sidebar-header"] {
+  position: relative;
+}
+
+[data-theme-preset="endfield"] [data-slot="sidebar-header"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--ef-hazard);
+  opacity: .7;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------- auth pages' brand panel */
+/* The upstream auth pages paint this panel with bg-primary. With the ink
+   primary it becomes the atlas' near-black layer; the concentric rings are
+   recoloured to the yellow mark and a hazard band closes the bottom edge. */
+[data-theme-preset="endfield"] .bg-primary.p-12 {
+  position: relative;
+}
+
+[data-theme-preset="endfield"] .bg-primary.p-12::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 6px;
+  background: var(--ef-hazard);
+  opacity: .9;
+  pointer-events: none;
+}
+
+[data-theme-preset="endfield"] .bg-primary.p-12 :is(
+  .border-primary-foreground\/10,
+  .border-primary-foreground\/15,
+  .border-primary-foreground\/20
+) {
+  border-color: color-mix(in srgb, var(--ef-accent) 26%, transparent);
+}
+
+/* the terms link sits on paper: keep the yellow as a mark, not as body text */
+[data-theme-preset="endfield"] form .text-primary {
+  color: var(--ef-black);
+  text-decoration-color: var(--ef-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+[data-theme-preset="endfield"] form .text-primary:hover {
+  color: var(--ef-accent-ink);
+  background: color-mix(in srgb, var(--ef-accent) 32%, transparent);
+}
+
+/* ------------------------------------- switches, sliders, keys, indicators */
+[data-theme-preset="endfield"] [data-slot="switch"] {
+  border-radius: 0;
+  border: 1px solid var(--border);
+}
+
+[data-theme-preset="endfield"] [data-slot="switch-thumb"] {
+  border-radius: 0;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="slider-track"], [data-slot="slider-range"], [data-slot="slider-thumb"]) {
+  border-radius: 0;
+}
+
+[data-theme-preset="endfield"] [data-slot="slider-thumb"] {
+  border: 1px solid var(--ef-accent-ink);
+  background: var(--ef-accent);
+}
+
+[data-theme-preset="endfield"] :is([data-slot="kbd"], [data-slot="kbd-group"] > *) {
+  border-radius: 0;
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="progress-indicator"], [data-slot="progress"] > div) {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+[data-theme-preset="endfield"] [data-slot="progress-indicator"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ef-accent) 55%, transparent),
+    transparent
+  );
+  animation: ef-sweep calc(1.5s / var(--ef-speed)) linear infinite;
+}
+
+/* ------------------------------------------- chat messages and empty states */
+[data-theme-preset="endfield"] :is([data-slot="message-content"], [data-slot="item"]) {
+  border-radius: 0;
+  border: 1px solid var(--border);
+}
+
+[data-theme-preset="endfield"] [data-slot="message-avatar"] {
+  border-radius: 0;
+  border: 1px solid var(--border);
+}
+
+[data-theme-preset="endfield"] [data-slot="empty-icon"] {
+  color: var(--ef-accent);
+  animation: ef-pulse calc(2.8s / var(--ef-speed)) ease-in-out infinite;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="marker"], [data-slot="marker-icon"]) {
+  border-radius: 0;
+  font-family: var(--font-mono);
+}
+
+[data-theme-preset="endfield"] [data-slot="chart"] {
+  border-radius: 0;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="toggle"], [data-slot="toggle-group"], [data-slot="toggle-group-item"]) {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* ---------------------------------------------------------------------- tabs */
+[data-theme-preset="endfield"] [data-slot="tabs-trigger"] {
+  border-radius: 0;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: .78rem;
+  transition: color .16s ease, background-color .16s ease;
+}
+
+[data-theme-preset="endfield"] [data-slot="tabs-trigger"][data-state="active"] {
+  box-shadow: inset 0 -2px 0 0 var(--ef-accent);
+}
+
+/* ------------------------------------------------- progress, loading, status */
+[data-theme-preset="endfield"] :is([role="progressbar"], [data-slot="progress"]) {
+  border-radius: 0;
+  overflow: hidden;
+}
+
+[data-theme-preset="endfield"] :is([role="progressbar"], [data-slot="progress"]) > div {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+[data-theme-preset="endfield"] :is([role="progressbar"], [data-slot="progress"]) > div::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ef-accent) 55%, transparent),
+    transparent
+  );
+  animation: ef-sweep calc(1.5s / var(--ef-speed)) linear infinite;
+}
+
+[data-theme-preset="endfield"] [data-slot="skeleton"] {
+  border-radius: 0;
+  background-image: repeating-linear-gradient(
+    115deg,
+    color-mix(in srgb, var(--foreground) 7%, transparent) 0 10px,
+    color-mix(in srgb, var(--foreground) 3%, transparent) 10px 20px
+  );
+  animation: ef-ruler-drift calc(2.6s / var(--ef-speed)) linear infinite;
+}
+
+[data-theme-preset="endfield"] :is([data-slot="spinner"], .loader) {
+  animation: ef-pulse calc(1.4s / var(--ef-speed)) ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ dividers */
+[data-theme-preset="endfield"] [data-slot="separator"] {
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--border) 0 6px,
+    transparent 6px 12px
+  );
+  animation: ef-ruler-drift calc(4s / var(--ef-speed)) linear infinite;
+}
+
+[data-theme-preset="endfield"] [data-slot="separator"][data-orientation="vertical"] {
+  background-image: repeating-linear-gradient(
+    180deg,
+    var(--border) 0 6px,
+    transparent 6px 12px
+  );
+  animation: ef-scan-drift calc(4s / var(--ef-speed)) linear infinite;
+}
+
+/* -------------------------------------------------------------- scrollbars */
+[data-theme-preset="endfield"] * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--foreground) 28%, transparent) transparent;
+}
+
+/* ------------------------------------------------------------- accessibility */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme-preset="endfield"] *,
+  [data-theme-preset="endfield"] *::before,
+  [data-theme-preset="endfield"] *::after,
+  [data-theme-preset="endfield"] body::before,
+  [data-theme-preset="endfield"] body::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

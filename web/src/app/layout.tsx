@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { BootSequence } from "@/components/boot-sequence";
 import { APP_CONFIG } from "@/config/app-config";
 import { fontVars } from "@/lib/fonts/registry";
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
@@ -49,6 +50,8 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             <Toaster />
           </PreferencesStoreProvider>
         </TooltipProvider>
+        {/* Opening sequence, rendered in-app so the window never swaps content. */}
+        <BootSequence />
       </body>
     </html>
   );

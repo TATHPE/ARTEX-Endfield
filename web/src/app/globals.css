@@ -6,6 +6,13 @@
 @import "../styles/presets/brutalist.css";
 @import "../styles/presets/soft-pop.css";
 @import "../styles/presets/tangerine.css";
+@import "../styles/presets/endfield.css";
+/* Endfield skin: texture, industrial chrome and motion, scoped to the preset. */
+@import "../styles/endfield-skin.css";
+/* Opening sequence that plays inside the app window (see components/boot-sequence.tsx). */
+@import "../styles/boot-sequence.css";
+/* Post-sign-in workbench loading screen (see components/workbench-loader.tsx). */
+@import "../styles/workbench-loader.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -239,6 +246,15 @@ These serve as the fallback; there is no separate default.css file. */
   }
   html[data-font="playfairDisplay"] body {
     --font-sans: var(--font-playfair-display);
+  }
+  /* Endfield theme fonts (self-hosted woff2): condensed display + mono data. */
+  html[data-font="endfield"] body {
+    --font-sans: var(--font-barlow-condensed);
+    --font-mono: var(--font-dm-mono);
+  }
+  html[data-font="endfieldMono"] body {
+    --font-sans: var(--font-dm-mono);
+    --font-mono: var(--font-dm-mono);
   }
 }
 

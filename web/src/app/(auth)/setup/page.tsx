@@ -49,6 +49,12 @@ export default function SetupPage() {
     try {
       const { token } = await api.initPassword(password);
       auth.setToken(token);
+      // First-run setup counts as a sign-in: play the loading screen once.
+      try {
+        sessionStorage.setItem("artex_show_workbench_loader", "1");
+      } catch {
+        /* ignore */
+      }
       router.replace("/function/tasks");
     } catch (err) {
       setError(err instanceof Error ? err.message : "初始化失败");

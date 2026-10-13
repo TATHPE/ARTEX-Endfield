@@ -1,0 +1,310 @@
+/* Boot sequence played INSIDE the application window.
+   Structure ported from rison114514/grad-research-workbench (renderer/css/theme.css
+   "Opening boot sequence" + js/boot-sequence.js); colours, fonts and the emblem
+   come from this project's Endfield tokens. Scoped to .ef-boot. */
+
+body.ef-booting { overflow: hidden; }
+
+.ef-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 78% 22%, rgba(244, 237, 23, .07), transparent 60%),
+    linear-gradient(160deg, #15181B 0%, #111416 55%, #0C0E10 100%);
+  color: #E8E8E2;
+}
+
+.ef-boot__material {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: .5;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(232, 232, 226, .035) 0 1px, transparent 1px 92px),
+    repeating-linear-gradient(0deg, rgba(232, 232, 226, .028) 0 1px, transparent 1px 92px);
+}
+
+.ef-boot__material::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .22;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------- index + rings */
+.ef-boot__index {
+  position: absolute;
+  left: 142px;
+  top: 25px;
+  color: rgba(232, 232, 226, .42);
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.55;
+  letter-spacing: .15em;
+}
+
+.ef-boot__index::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 4px;
+  margin-right: 8px;
+  background: #F4ED17;
+  vertical-align: 2px;
+}
+
+.ef-boot__rings { position: absolute; inset: 0; z-index: 1; overflow: hidden; opacity: .72; }
+
+.ef-boot__rings::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 62vw;
+  height: 62vw;
+  border: 1px solid rgba(232, 232, 226, .10);
+  border-radius: 50%;
+}
+
+.ef-boot__rings::after {
+  content: "";
+  position: absolute;
+  left: -14vw;
+  bottom: -22vh;
+  width: 54vw;
+  height: 54vw;
+  border: 1px solid rgba(244, 237, 23, .12);
+  border-radius: 50%;
+}
+
+.ef-boot__rings i { position: absolute; display: block; border: 1px solid rgba(232, 232, 226, .28); border-radius: 50%; }
+.ef-boot__rings i:nth-child(1) { right: 28vw; top: 18vh; width: 210px; height: 210px; }
+.ef-boot__rings i:nth-child(2) { right: 20vw; top: 26vh; width: 76px; height: 76px; }
+.ef-boot__rings i:nth-child(3) { right: 11vw; bottom: 12vh; width: 360px; height: 180px; border-radius: 48% 52% 42% 58%; transform: rotate(-24deg); }
+
+/* -------------------------------------------------------------- load column */
+.ef-boot__loader { position: absolute; left: 0; top: 0; bottom: 0; width: min(112px, 24vw); z-index: 3; }
+
+.ef-boot__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: rgba(232, 232, 226, .025);
+  border-right: 1px solid rgba(232, 232, 226, .08);
+}
+
+.ef-boot__track::after {
+  content: "LOADING";
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  z-index: 3;
+  color: rgba(17, 20, 22, .45);
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  writing-mode: vertical-rl;
+  transform: translateX(-50%);
+}
+
+.ef-boot__fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #F4ED17;
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+.ef-boot__value {
+  position: absolute;
+  left: calc(100% + 13px);
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  color: #E8E8E2;
+  will-change: transform;
+}
+
+.ef-boot__value b {
+  min-width: 64px;
+  font-family: var(--font-mono, monospace);
+  font-size: 31px;
+  font-weight: 500;
+  line-height: .78;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ef-boot__value span { margin: -2px 0 0 4px; color: #F4ED17; font-family: var(--font-mono, monospace); font-size: 10px; font-weight: 700; }
+
+.ef-boot__value::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 31px;
+  width: 38px;
+  height: 1px;
+  background: rgba(232, 232, 226, .62);
+}
+
+/* ------------------------------------------------------------------ identity */
+.ef-boot__identity {
+  position: absolute;
+  right: clamp(40px, 5vw, 96px);
+  top: 50%;
+  width: min(64vw, 780px);
+  display: grid;
+  grid-template-columns: minmax(200px, .92fr) 42px minmax(190px, 1fr);
+  gap: 26px;
+  align-items: center;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.ef-boot__project,
+.ef-boot__emblem-wrap { min-width: 0; opacity: 0; }
+
+.ef-boot__project img {
+  display: block;
+  width: min(100%, 236px);
+  max-height: 168px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.ef-boot__project figcaption {
+  display: block;
+  padding-top: 9px;
+  border-top: 1px solid rgba(232, 232, 226, .34);
+  color: rgba(232, 232, 226, .52);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ef-boot__divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #F4ED17;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0;
+}
+
+.ef-boot__divider i { width: 1px; height: 76px; background: linear-gradient(transparent, rgba(232, 232, 226, .55), transparent); }
+
+/* the reference lockup, retitled: survey triangle + topographic contours +
+   wordmark band + dash-flanked caption */
+.ef-emblem { display: block; width: min(100%, 250px); height: auto; }
+.ef-emblem__tri { fill: rgba(232, 232, 226, .04); stroke: rgba(232, 232, 226, .55); stroke-width: 5; }
+.ef-emblem__contour { fill: none; stroke: rgba(232, 232, 226, .30); stroke-width: 3.5; }
+.ef-emblem__ribs path { stroke: rgba(232, 232, 226, .26); stroke-width: 4; }
+.ef-emblem__band { fill: #E8E8E2; }
+.ef-emblem__word {
+  fill: #111416;
+  /* The lockup wordmark is CJK (终末地), so it needs a heavy gothic face rather
+     than the condensed Latin stack used elsewhere. */
+  font-family: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: 112px;
+  font-weight: 900;
+  letter-spacing: 6px;
+}
+.ef-emblem__rule path { stroke: rgba(232, 232, 226, .5); stroke-width: 3; }
+.ef-emblem__caption {
+  fill: rgba(232, 232, 226, .72);
+  font-family: var(--font-mono, monospace);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 3.2px;
+}
+
+/* -------------------------------------------------------------- status + wipe */
+.ef-boot__status {
+  position: absolute;
+  right: clamp(40px, 5vw, 96px);
+  bottom: 42px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 4;
+}
+
+.ef-boot__status span {
+  padding: 5px 8px;
+  background: #F4ED17;
+  color: #111416;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.ef-boot__status b { font-size: 13px; font-weight: 500; letter-spacing: .06em; color: rgba(232, 232, 226, .9); }
+
+.ef-boot__wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: #F4ED17;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.ef-boot--reveal > *:not(.ef-boot__wipe) { opacity: 0 !important; }
+
+/* --------------------------------------------------------------- animation */
+@keyframes ef-boot-in-right {
+  from { transform: translate3d(38px, 0, 0) scale(.96); opacity: 0; }
+  to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+}
+@keyframes ef-boot-in-soft {
+  from { transform: translate3d(28px, 0, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes ef-boot-divider {
+  from { transform: scaleY(.15); opacity: 0; }
+  to { transform: scaleY(1); opacity: .7; }
+}
+@keyframes ef-boot-rings {
+  from { transform: translate3d(12px, -8px, 0) scale(1.025); opacity: .32; }
+  to { transform: translate3d(0, 0, 0) scale(1); opacity: .72; }
+}
+
+.ef-boot--in .ef-boot__project { animation: ef-boot-in-right 720ms cubic-bezier(.16, .78, .18, 1) 140ms both; }
+.ef-boot--in .ef-boot__emblem-wrap { animation: ef-boot-in-soft 680ms cubic-bezier(.18, .76, .2, 1) 310ms both; }
+.ef-boot--in .ef-boot__divider { animation: ef-boot-divider 620ms cubic-bezier(.2, .8, .2, 1) 460ms both; }
+.ef-boot--in .ef-boot__rings { animation: ef-boot-rings 2900ms cubic-bezier(.2, .65, .2, 1) both; }
+
+@media (max-width: 900px) {
+  .ef-boot__loader { width: 72px; }
+  .ef-boot__index { left: 94px; }
+  .ef-boot__identity { right: 24px; width: 66vw; grid-template-columns: 1fr; gap: 10px; }
+  .ef-boot__divider { display: none; }
+  .ef-boot__project img { max-height: 140px; }
+  .ef-emblem { width: 180px; }
+  .ef-boot__status { right: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ef-boot--in .ef-boot__project,
+  .ef-boot--in .ef-boot__emblem-wrap,
+  .ef-boot--in .ef-boot__divider,
+  .ef-boot--in .ef-boot__rings { animation-duration: 180ms; animation-delay: 0ms; }
+}
