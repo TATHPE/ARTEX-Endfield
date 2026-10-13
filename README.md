@@ -2,7 +2,7 @@
 
 # ARTEX
 
-AI 自主渗透测试系统（Go 后端 + Next.js 前端）
+AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arknights: Endfield）主题版 fork**
 
 
 🌐 **在线 Demo**： [https://artex-demo.vercel.app/](https://artex-demo.vercel.app/)
@@ -33,7 +33,22 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）
 
 ## 截图预览
 
-> 完整交互见[在线 Demo](https://artex-demo.vercel.app/)。
+> 下图为**本 fork 的终末地主题版**实机截图（Windows 独立窗口版，动画均在应用窗口内播放）。原始交互见上游[在线 Demo](https://artex-demo.vercel.app/)。
+
+| 开屏动画（窗口内播放 · 项目 Logo × 三角徽标） | 登录后加载页（每次密码登录播一次） |
+| :---: | :---: |
+| ![开屏动画](screenshots/endfield-boot.png) | ![登录后加载页](screenshots/endfield-loading.png) |
+
+| 仪表盘（墨底侧栏 + 危险条纹 + 等宽读数） | 登录页（纸底 · 主黄只作标记） |
+| :---: | :---: |
+| ![仪表盘](screenshots/endfield-dashboard.png) | ![登录页](screenshots/endfield-login.png) |
+
+| 应用图标（三角徽标 · ARTEX · 16/24/32/48/64/128/256） |
+| :---: |
+| ![应用图标](screenshots/endfield-icon.png) |
+
+<details>
+<summary>上游默认主题的截图（点击展开）</summary>
 
 | 仪表盘（总览 / Token 消耗 / 活动流） | 任务列表 |
 | :---: | :---: |
@@ -62,6 +77,8 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）
 | 拦截审批 | 后端日志 |
 | :---: | :---: |
 | ![拦截](screenshots/intercept.png) | ![日志](screenshots/logs.png) |
+
+</details>
 
 
 ---
