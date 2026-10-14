@@ -35,7 +35,7 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 
 > 下图为**本 fork 的终末地主题版**实机截图（Windows 独立窗口版，动画均在应用窗口内播放）。原始交互见上游[在线 Demo](https://artex-demo.vercel.app/)。
 
-| 开屏动画（窗口内播放 · 项目 Logo × 三角徽标） | 登录后加载页（每次密码登录播一次） |
+| 开屏动画（窗口内播放 · 项目 Logo × 终末地 lockup · 进度/校验读数） | 登录后加载页（每次密码登录播一次） |
 | :---: | :---: |
 | ![开屏动画](screenshots/endfield-boot.png) | ![登录后加载页](screenshots/endfield-loading.png) |
 
