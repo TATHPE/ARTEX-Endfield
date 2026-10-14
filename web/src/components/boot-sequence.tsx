@@ -172,6 +172,43 @@ export function BootSequence() {
         </div>
 
         <div className="ef-boot__emblem-wrap">
+          {/* 号主定稿（2026-10-13 · Q2=a）：这一格换回**参照项目原本的素材** ——
+              原图 blurred_logo（已拷进 public/boot-endfield-logo.png）+ 文字块
+              「终末地 / ARKNIGHTS: ENDFIELD」，沿用参照项目 index.html 里
+              .boot-endfield-logo 的写法；不再使用我们手绘的 SVG 锁标（下面的
+              svg.ef-emblem 仅保留在文件里但被 CSS 隐藏，便于日后回退）。 */}
+          <figure className="ef-boot__endfield">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/boot-endfield-logo.png" alt="终末地" />
+            <figcaption>
+              <strong>终末地</strong>
+              <span>ARKNIGHTS: ENDFIELD</span>
+            </figcaption>
+          </figure>
+          <style>{`
+            /* 严格照参照项目 .boot-endfield-logo 的布局：图片绝对居中当底（opacity .34 + screen），
+               文字块居中叠在上面；这样"终末地"就居中在那一格里，不再与图片左右并排。 */
+            .ef-boot__endfield { position: relative; min-height: 220px; display: grid; place-items: center; margin: 0; }
+            .ef-boot__endfield img {
+              position: absolute; left: 50%; top: 50%; width: 230px; height: 200px;
+              object-fit: contain; opacity: .34;
+              filter: grayscale(1) invert(1) brightness(3) contrast(2);
+              transform: translate(-50%, -50%); mix-blend-mode: screen;
+            }
+            .ef-boot__endfield figcaption { position: relative; z-index: 1; text-align: center; }
+            .ef-boot__endfield strong {
+              display: block; color: #fff;
+              font-family: var(--font-cjk, "Microsoft YaHei", "PingFang SC", sans-serif);
+              font-size: clamp(42px, 5vw, 72px); font-weight: 900; line-height: .82;
+              letter-spacing: -.12em; text-shadow: 5px 5px 0 rgba(255, 255, 255, .08);
+            }
+            .ef-boot__endfield span {
+              display: block; margin-top: 12px; color: rgba(255, 255, 255, .72);
+              font-family: var(--font-mono, monospace);
+              font-size: 10px; font-weight: 700; letter-spacing: .11em;
+            }
+            .ef-boot__emblem-wrap svg.ef-emblem { display: none; }
+          `}</style>
           {/* Reference lockup retitled to ARTEX: inverted survey triangle with
               topographic contours, the wordmark band and the caption rule. */}
           <svg className="ef-emblem" viewBox="0 0 640 720" role="img" aria-label="ARTEX">
@@ -221,6 +258,16 @@ export function BootSequence() {
       </div>
 
       <div className="ef-boot__wipe" aria-hidden="true" />
+
+      {/* 号主 2026-10-14 定稿：删掉皮肤里的**两层全屏叠层** ——
+          ① body::after  全屏扫描线（每 3px 一条、缓慢漂移）
+          ② body::before 颗粒/噪点质感
+          其余一律保留：黄黑危险条纹(--ef-hazard)、骨架屏条纹、虚线分隔条、
+          面板入场/脉冲/扫光等动效。（先前误删过宽的部分已撤销。） */}
+      <style>{`
+        [data-theme-preset="endfield"] body::after { display: none !important; }
+        [data-theme-preset="endfield"] body::before { display: none !important; }
+      `}</style>
     </div>
   );
 }

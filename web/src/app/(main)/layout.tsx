@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import * as React from "react";
 
 import { AppSidebar } from "@/app/(main)/_components/sidebar/app-sidebar";
+import { PenguinBackdrop } from "@/components/penguin-backdrop";
 import { WorkbenchLoader } from "@/components/workbench-loader";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
@@ -63,12 +64,15 @@ export default function Layout({ children }: Readonly<{ children: ReactNode }>) 
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
+      className="relative"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 68)",
         } as React.CSSProperties
       }
     >
+      {/* 右下角企鹅：作为工作区背景图绘制在所有内容之下，fixed 定位不随滚动移动（仅登录后工作台） */}
+      <PenguinBackdrop />
       <AppSidebar variant={variant} collapsible={collapsible} />
       <SidebarInset
         className={cn(

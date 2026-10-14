@@ -20,7 +20,7 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 > | 改动 | 位置 |
 > | --- | --- |
 > | 终末地令牌预设（零圆角 / 零软阴影 / 纸底黄只作标记） | `web/src/styles/presets/endfield.css` |
-> | 皮肤层（颗粒、扫描线、切角面板、危险条纹、等宽读数、克制动效） | `web/src/styles/endfield-skin.css` |
+> | 皮肤层（切角面板、危险条纹、四角定位标、等宽读数、克制动效；**按号主要求已移除全屏扫描线与颗粒两层叠层**） | `web/src/styles/endfield-skin.css` |
 > | **开屏动画**（在应用窗口内播放，预渲染首帧） | `web/src/components/boot-sequence.tsx` + `web/src/styles/boot-sequence.css` |
 > | **登录后加载页**（窗口内播放，**每次密码登录播一次**） | `web/src/components/workbench-loader.tsx` + `web/src/styles/workbench-loader.css` |
 > | 自托管字体（Barlow Condensed + DM Mono，无需联网） | `web/src/lib/fonts/endfield/*.woff2`、`web/src/lib/fonts/registry.ts` |
@@ -46,6 +46,14 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 | 应用图标（三角徽标 · ARTEX · 16/24/32/48/64/128/256） |
 | :---: |
 | ![应用图标](screenshots/endfield-icon.png) |
+
+| 工作台 · 右下角企鹅水印（**完整显示** · 固定不随滚动 · 随窗口等比缩放） |
+| :---: |
+| ![右下角企鹅](screenshots/endfield-penguin.png) |
+
+| SKILL 页（技能授权与门控） |
+| :---: |
+| ![SKILL](screenshots/endfield-skills.png) |
 
 <details>
 <summary>上游默认主题的截图（点击展开）</summary>
