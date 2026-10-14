@@ -14,7 +14,7 @@ func (f releaseTransport) RoundTrip(r *http.Request) (*http.Response, error) { r
 
 func TestFetchLatestUsesForkRelease(t *testing.T) {
 	client := &http.Client{Transport: releaseTransport(func(r *http.Request) (*http.Response, error) {
-		if got := r.URL.String(); got != "https://api.github.com/repos/RuoJi6/ARTEX/releases/latest" {
+		if got := r.URL.String(); got != "https://api.github.com/repos/TATHPE/ARTEX-Endfield/releases/latest" {
 			t.Fatalf("unexpected update source: %s", got)
 		}
 		if r.Method != http.MethodGet || r.Header.Get("Accept") != "application/vnd.github+json" {
@@ -52,7 +52,7 @@ func TestFetchLatestMissingRelease(t *testing.T) {
 		return &http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("{}"))}, nil
 	})}
 	_, err := FetchLatest(context.Background(), client)
-	if err == nil || !strings.Contains(err.Error(), "RuoJi6/ARTEX") || !strings.Contains(err.Error(), "不可访问或尚未发布") {
+	if err == nil || !strings.Contains(err.Error(), "TATHPE/ARTEX-Endfield") || !strings.Contains(err.Error(), "不可访问或尚未发布") {
 		t.Fatalf("unexpected missing-release error: %v", err)
 	}
 }
