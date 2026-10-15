@@ -6,9 +6,12 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -282,6 +285,43 @@ ON CONFLICT (name) DO NOTHING`,
 	if err := d.seedDefaultAssetInterceptRules(); err != nil {
 		return fmt.Errorf("seed asset intercept rules: %w", err)
 	}
+	if err := d.seedBundledREA(); err != nil {
+		return fmt.Errorf("seed bundled rea mcp: %w", err)
+	}
+	return nil
+}
+
+// seedBundledREA points the `rea` MCP row at the REA runtime bundled beside the
+// backend (resources/node/node.exe + resources/rea/node_modules/rea-agents/...).
+//
+// It returns early unless both bundled paths exist, so a source-tree run — or an
+// install built before the offline payload — keeps whatever launcher the user
+// configured. When the runtime IS present the upsert repairs a stale launcher path
+// (e.g. a build machine's C:\Program Files\nodejs\node.exe), but a row that already
+// matches is left alone, so the user's own enabled/visibility edits survive.
+func (d *DB) seedBundledREA() error {
+	resources := filepath.Dir(config.BaseDir())
+	nodeExe := filepath.Join(resources, "node", "node.exe")
+	reaEntry := filepath.Join(resources, "rea", "node_modules", "rea-agents", "scripts", "rea.mjs")
+	if _, err := os.Stat(nodeExe); err != nil {
+		return nil
+	}
+	if _, err := os.Stat(reaEntry); err != nil {
+		return nil
+	}
+	args, err := json.Marshal([]string{reaEntry, "mcp"})
+	if err != nil {
+		return fmt.Errorf("marshal rea args: %w", err)
+	}
+	if _, err := d.Exec(`
+INSERT INTO mcp_servers(name, transport, command, args, env, enabled)
+VALUES ('rea', 'stdio', $1, $2, '{}', true)
+ON CONFLICT (name) DO UPDATE
+  SET transport = 'stdio', command = EXCLUDED.command, args = EXCLUDED.args
+  WHERE mcp_servers.command IS DISTINCT FROM EXCLUDED.command
+     OR mcp_servers.args IS DISTINCT FROM EXCLUDED.args`, nodeExe, string(args)); err != nil {
+		return fmt.Errorf("seed rea mcp: %w", err)
+	}
 	return nil
 }
 
@@ -323,6 +363,9 @@ ON CONFLICT DO NOTHING`, r.kind, r.pattern, r.note); err != nil {
 // that MCP is enabled/configured.
 var builtinSkillVisibility = map[string][]string{
 	"api-recon": {"auto", "pentest", "worker"},
+	// reverse-engineer-anything declares `mcps: rea`: binding it to worker is what
+	// makes the bundled REA tools reachable (and skill-gated) on a fresh install.
+	"reverse-engineer-anything": {"worker"},
 }
 
 // seedBuiltinSkillVisibility binds the shipped built-in skills to their default
