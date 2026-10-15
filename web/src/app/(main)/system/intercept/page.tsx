@@ -340,7 +340,7 @@ function JudgeCard() {
         <div className="grid gap-4 lg:grid-cols-5">
           {/* 左:提示词编辑器(直接展开,主区域) */}
           <Card className="lg:col-span-3">
-            <CardContent className="flex h-full flex-col gap-2 p-4">
+            <CardContent className="flex min-h-0 flex-1 flex-col gap-2 p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">审批提示词</p>
@@ -351,7 +351,7 @@ function JudgeCard() {
                 </Button>
               </div>
               <Textarea
-                className="min-h-[22rem] flex-1 resize-none font-mono text-xs leading-relaxed"
+                className="field-sizing-fixed min-h-[22rem] max-h-[none] flex-1 resize-none font-mono text-xs leading-relaxed"
                 value={cfg.prompt}
                 onChange={(e) => patch({ prompt: e.target.value })}
                 placeholder="留空使用内置模板"
