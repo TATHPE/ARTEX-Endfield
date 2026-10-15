@@ -1,0 +1,377 @@
+/* ARTEX boot sequence — Endfield tokens.
+   Structure ported from rison114514/grad-research-workbench (renderer/css/theme.css
+   "Opening boot sequence"), colours/fonts replaced with this project's atlas tokens:
+   main yellow #F4ED17, ink #111416, warm white #E8E8E2, no rounded corners,
+   no soft shadows, condensed display + mono data only. */
+
+@font-face {
+  font-family: "EF Display";
+  src: url("assets/fonts/BarlowCondensed-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "EF Display";
+  src: url("assets/fonts/BarlowCondensed-600.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "EF Display";
+  src: url("assets/fonts/BarlowCondensed-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "EF Mono";
+  src: url("assets/fonts/DMMono-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "EF Mono";
+  src: url("assets/fonts/DMMono-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+
+:root {
+  --yellow: #F4ED17;
+  --ink: #111416;
+  --ink-2: #151719;
+  --paper: #E8E8E2;
+  --muted: #646766;
+  --hazard: repeating-linear-gradient(135deg, var(--yellow) 0 6px, var(--ink) 6px 12px);
+  --display-wide: "EF Display", "Arial Narrow", Impact, sans-serif;
+  --display-cjk: "EF Display", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --numeric: "EF Mono", Consolas, monospace;
+  --latin: "EF Display", "Arial Narrow", sans-serif;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--display-cjk);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ------------------------------------------------------------------ overlay */
+.boot-sequence {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 78% 22%, rgba(244, 237, 23, .07), transparent 60%),
+    linear-gradient(160deg, #15181B 0%, var(--ink) 55%, #0C0E10 100%);
+}
+
+.boot-material {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .5;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(232, 232, 226, .035) 0 1px, transparent 1px 92px),
+    repeating-linear-gradient(0deg, rgba(232, 232, 226, .028) 0 1px, transparent 1px 92px);
+}
+
+.boot-material::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grain);
+  opacity: .22;
+  mix-blend-mode: screen;
+}
+
+.boot-contours { position: absolute; inset: 0; z-index: -2; overflow: hidden; opacity: .72; }
+
+.boot-contours::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto auto;
+  width: 62vw;
+  height: 62vw;
+  border: 1px solid rgba(232, 232, 226, .10);
+  border-radius: 50%;
+}
+
+.boot-contours::after {
+  content: "";
+  position: absolute;
+  left: -14vw;
+  bottom: -22vh;
+  width: 54vw;
+  height: 54vw;
+  border: 1px solid rgba(244, 237, 23, .12);
+  border-radius: 50%;
+}
+
+.boot-contours i { position: absolute; display: block; border: 1px solid rgba(232, 232, 226, .28); border-radius: 50%; }
+.boot-contours i:nth-child(1) { right: 28vw; top: 18vh; width: 210px; height: 210px; }
+.boot-contours i:nth-child(2) { right: 20vw; top: 26vh; width: 76px; height: 76px; }
+.boot-contours i:nth-child(3) { right: 11vw; bottom: 12vh; width: 360px; height: 180px; border-radius: 48% 52% 42% 58%; transform: rotate(-24deg); }
+
+/* --------------------------------------------------------------- index label */
+.boot-index {
+  position: absolute;
+  left: 142px;
+  top: 25px;
+  color: rgba(232, 232, 226, .42);
+  font: 600 8px/1.55 var(--display-wide);
+  letter-spacing: .15em;
+}
+
+.boot-index::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 4px;
+  margin-right: 8px;
+  background: var(--yellow);
+  vertical-align: 2px;
+}
+
+/* -------------------------------------------------------------- load column */
+.boot-loader { position: absolute; left: 0; top: 0; bottom: 0; width: min(112px, 24vw); }
+
+.boot-loader-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: rgba(232, 232, 226, .025);
+  border-right: 1px solid rgba(232, 232, 226, .08);
+}
+
+.boot-loader-track::after {
+  content: "LOADING";
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  z-index: 3;
+  color: rgba(17, 20, 22, .45);
+  font: 700 8px/1 var(--display-wide);
+  letter-spacing: .12em;
+  writing-mode: vertical-rl;
+  transform: translateX(-50%);
+}
+
+.boot-loader-track > i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--yellow);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+.boot-loader-value {
+  position: absolute;
+  left: calc(100% + 13px);
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  color: var(--paper);
+  will-change: transform;
+}
+
+.boot-loader-value b {
+  min-width: 64px;
+  font: 500 31px/.78 var(--numeric);
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.boot-loader-value span { margin: -2px 0 0 4px; color: var(--yellow); font: 700 10px/1 var(--display-wide); }
+
+.boot-loader-value::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 31px;
+  width: 38px;
+  height: 1px;
+  background: rgba(232, 232, 226, .62);
+}
+
+/* ------------------------------------------------------------------ identity */
+.boot-identity {
+  position: absolute;
+  right: clamp(40px, 5vw, 96px);
+  top: 50%;
+  width: min(64vw, 780px);
+  display: grid;
+  grid-template-columns: minmax(200px, .92fr) 42px minmax(190px, 1fr);
+  gap: 26px;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.boot-project-logo,
+.boot-endfield-logo { min-width: 0; opacity: 0; will-change: transform, opacity; }
+
+/* Entrance is CSS-driven (not Web Animations): keyframes advance reliably in
+   headless/virtual-time rendering too, so the layout is verifiable by screenshot. */
+@keyframes ef-in-right {
+  from { transform: translate3d(38px, 0, 0) scale(.96); opacity: 0; }
+  to { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+}
+@keyframes ef-in-right-soft {
+  from { transform: translate3d(28px, 0, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes ef-divider-in {
+  from { transform: scaleY(.15); opacity: 0; }
+  to { transform: scaleY(1); opacity: .7; }
+}
+@keyframes ef-contour-in {
+  from { transform: translate3d(12px, -8px, 0) scale(1.025); opacity: .32; }
+  to { transform: translate3d(0, 0, 0) scale(1); opacity: .72; }
+}
+
+.boot-sequence.boot-in .boot-project-logo { animation: ef-in-right 720ms cubic-bezier(.16, .78, .18, 1) 140ms both; }
+.boot-sequence.boot-in .boot-endfield-logo { animation: ef-in-right-soft 680ms cubic-bezier(.18, .76, .2, 1) 310ms both; }
+.boot-sequence.boot-in .boot-logo-divider { animation: ef-divider-in 620ms cubic-bezier(.2, .8, .2, 1) 460ms both; }
+.boot-sequence.boot-in .boot-contours { animation: ef-contour-in 2900ms cubic-bezier(.2, .65, .2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-sequence.boot-in .boot-project-logo,
+  .boot-sequence.boot-in .boot-endfield-logo,
+  .boot-sequence.boot-in .boot-logo-divider,
+  .boot-sequence.boot-in .boot-contours { animation-duration: 200ms; animation-delay: 0ms; }
+}
+
+/* Static preview (?static=1): entrance animations off, everything laid out, so
+   the composition can be reviewed or screenshot without an animation clock. */
+.boot-sequence.static .boot-project-logo,
+.boot-sequence.static .boot-endfield-logo,
+.boot-sequence.static .boot-logo-divider,
+.boot-sequence.static .boot-contours {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+.boot-sequence.static .boot-logo-divider { opacity: .7 !important; }
+.boot-sequence.static .boot-contours { opacity: .72 !important; }
+
+.boot-project-logo img {
+  display: block;
+  width: min(100%, 236px);
+  max-height: 168px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.boot-project-logo > span {
+  display: block;
+  margin-top: 0;
+  padding-top: 9px;
+  border-top: 1px solid rgba(232, 232, 226, .34);
+  color: rgba(232, 232, 226, .52);
+  font: 600 10px/1.3 var(--display-cjk);
+  letter-spacing: .12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.boot-logo-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--yellow);
+  font: 600 18px/1 var(--latin);
+  opacity: .7;
+}
+
+.boot-logo-divider i { width: 1px; height: 76px; background: linear-gradient(transparent, rgba(232, 232, 226, .55), transparent); }
+
+.boot-endfield-logo { position: relative; min-height: 300px; display: grid; place-items: center; }
+
+.ef-emblem { width: min(100%, 250px); height: auto; display: block; }
+
+.ef-tri { fill: rgba(232, 232, 226, .04); stroke: rgba(232, 232, 226, .55); stroke-width: 5; }
+
+.ef-contour { fill: none; stroke: rgba(232, 232, 226, .30); stroke-width: 3.5; }
+
+.ef-ribs path { stroke: rgba(232, 232, 226, .26); stroke-width: 4; }
+
+.ef-band { fill: var(--paper); }
+
+.ef-wordmark {
+  fill: var(--ink);
+  font-family: var(--display-wide);
+  font-weight: 700;
+  font-size: 104px;
+  letter-spacing: 2px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.ef-rule path { stroke: rgba(232, 232, 226, .5); stroke-width: 3; }
+
+.ef-caption {
+  fill: rgba(232, 232, 226, .72);
+  font-family: var(--numeric);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 3.2px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* -------------------------------------------------------------- status copy */
+.boot-status-copy {
+  position: absolute;
+  right: clamp(40px, 5vw, 96px);
+  bottom: 42px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.boot-status-copy span {
+  padding: 5px 8px;
+  background: var(--yellow);
+  color: var(--ink);
+  font: 700 9px/1 var(--display-wide);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.boot-status-copy b { font-size: 13px; font-weight: 500; letter-spacing: .06em; color: rgba(232, 232, 226, .9); }
+
+/* ------------------------------------------------------------------ reveal */
+.boot-yellow-wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: var(--yellow);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.boot-sequence.reveal-ready > :not(.boot-yellow-wipe) { opacity: 0 !important; }
+
+/* --------------------------------------------------------------- responsive */
+@media (max-width: 900px) {
+  .boot-loader { width: 72px; }
+  .boot-index { left: 94px; }
+  .boot-identity { right: 24px; width: 66vw; grid-template-columns: 1fr; gap: 10px; }
+  .boot-logo-divider { display: none; }
+  .boot-project-logo img { max-height: 140px; }
+  .boot-endfield-logo { min-height: 200px; }
+  .ef-emblem { width: 180px; }
+  .boot-status-copy { right: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-sequence * { transition: none !important; }
+}

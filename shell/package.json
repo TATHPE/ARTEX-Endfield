@@ -1,0 +1,73 @@
+{
+  "name": "artex-endfield-shell",
+  "version": "2.2.1",
+  "private": true,
+  "description": "ARTEX desktop shell (Endfield theme): boot animation + native window + local stack supervision",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "38.8.6",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "dev.artex.endfield",
+    "productName": "ARTEX",
+    "electronDist": "node_modules/electron/dist",
+    "files": [
+      "main.js",
+      "preload.js",
+      "diagnose.html",
+      "icon.ico"
+    ],
+    "afterPack": "tools/after-pack.js",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ARTEX Endfield",
+      "artifactName": "ARTEX-Endfield-Setup-${version}.exe",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    },
+    "extraResources": [
+      {
+        "from": "../payload/artex",
+        "to": "artex"
+      },
+      {
+        "from": "../payload/pgsql",
+        "to": "pgsql"
+      },
+      {
+        "from": "../payload/node",
+        "to": "node"
+      },
+      {
+        "from": "../payload/rea/node_modules",
+        "to": "rea/node_modules"
+      }
+    ],
+    "portable": {
+      "artifactName": "ARTEX-Endfield.exe"
+    }
+  }
+}

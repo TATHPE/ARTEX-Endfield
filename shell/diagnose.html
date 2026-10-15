@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ARTEX — 启动失败诊断</title>
+    <style>
+      :root {
+        --bg: #111416;
+        --card: #1a1f23;
+        --line: #2b3238;
+        --fg: #e6edf3;
+        --dim: #9aa7b2;
+        --err: #ff6b6b;
+        --warn: #ffc857;
+        --ok: #4ade80;
+        --accent: #6ea8fe;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 13.5px/1.65 "Microsoft YaHei UI", "Segoe UI", system-ui, sans-serif;
+        overflow-wrap: anywhere;
+      }
+      .wrap { width: min(900px, calc(100% - 44px)); margin: 0 auto; padding: 26px 0 40px; }
+      h1 { font-size: 21px; margin: 0 0 4px; letter-spacing: 0.5px; }
+      h2 { font-size: 15px; margin: 22px 0 8px; color: var(--accent); }
+      .reason {
+        margin: 12px 0 18px;
+        padding: 12px 14px;
+        background: #2a1416;
+        border: 1px solid #5b2a2a;
+        border-radius: 8px;
+        color: #ffd9d9;
+      }
+      .grid { display: grid; grid-template-columns: 132px 1fr; gap: 4px 14px; }
+      .grid .k { color: var(--dim); }
+      .grid .v { word-break: break-all; font-family: Consolas, "Courier New", monospace; }
+      ul.items { list-style: none; padding: 0; margin: 0; }
+      ul.items li {
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        background: var(--card);
+        border-left: 3px solid var(--line);
+        border-radius: 6px;
+      }
+      ul.items li.error { border-left-color: var(--err); }
+      ul.items li.warn { border-left-color: var(--warn); }
+      ul.items li.ok { border-left-color: var(--ok); }
+      .tag { font-size: 11px; padding: 1px 7px; border-radius: 999px; margin-right: 8px; vertical-align: 1px; }
+      .tag.error { background: #40202a; color: #ffb3b3; }
+      .tag.warn { background: #40381f; color: #ffe08a; }
+      .tag.ok { background: #1e3326; color: #a7f3c4; }
+      ol.steps { padding-left: 20px; margin: 6px 0 0; }
+      ol.steps li { margin-bottom: 9px; }
+      code, .mono { font-family: Consolas, "Courier New", monospace; background: #0c0f11; padding: 1px 5px; border-radius: 4px; }
+      .hint { color: var(--dim); font-size: 12.5px; }
+      details { background: var(--card); border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; }
+      details > summary { cursor: pointer; padding: 8px 12px; color: var(--dim); }
+      details pre {
+        margin: 0;
+        padding: 10px 12px;
+        border-top: 1px solid var(--line);
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-size: 12px;
+        color: #cbd5e1;
+        max-height: 260px;
+        overflow: auto;
+      }
+      .bar { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; }
+      button {
+        background: #212a31;
+        color: var(--fg);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      button:hover { background: #2a353d; }
+      button.primary { background: #1d4ed8; border-color: #1d4ed8; }
+      button.primary:hover { background: #2563eb; }
+      footer { margin-top: 22px; color: var(--dim); font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>ARTEX 没有启动起来</h1>
+      <div class="hint">
+        这个页面替代了以前的“黑窗口”。下面的信息来自本机实际检查与日志，可以直接截图或整段复制发给维护者。
+      </div>
+
+      <div class="reason" id="reason">正在收集诊断信息…</div>
+
+      <h2>本机检查</h2>
+      <div class="grid" id="env"></div>
+
+      <h2>发现的问题</h2>
+      <ul class="items" id="items"></ul>
+
+      <h2>按顺序试这几步</h2>
+      <ol class="steps">
+        <li>
+          <b>缺 Visual C++ 运行库</b>（最常见）：安装
+          <span class="mono">Microsoft Visual C++ 2015-2022 Redistributable (x64)</span>，装完<b>重启电脑</b>再打开 ARTEX。
+          <div class="hint">便携 PostgreSQL 依赖它；干净系统上缺了它 <span class="mono">postgres.exe</span> 会直接加载失败。</div>
+        </li>
+        <li>
+          <b>确认安装目录是纯英文且可写</b>（例如 <span class="mono">D:\ARTEX</span>）。
+          <div class="hint">含中文/空格的路径会让 PostgreSQL 的 <span class="mono">initdb</span> 失败。</div>
+        </li>
+        <li>
+          <b>端口被占</b>：本版会自动改用空闲端口，无需手动处理；若仍失败，关掉占用
+          5433 / 8787 / 8788 的软件后点下面的“重试”。
+        </li>
+        <li>
+          <b>杀毒软件误报</b>：把整个安装目录加入白名单（重点
+          <span class="mono">resources\pgsql\bin\postgres.exe</span> 与
+          <span class="mono">resources\artex\artex.exe</span>）。
+        </li>
+      </ol>
+
+      <h2>日志尾部</h2>
+      <div id="logs"></div>
+
+      <div class="bar">
+        <button class="primary" id="retry">重试启动</button>
+        <button id="openDir">打开安装目录</button>
+        <button id="openArtexLog">打开后端日志</button>
+        <button id="quit">退出</button>
+      </div>
+
+      <footer id="paths"></footer>
+    </div>
+
+    <script>
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      }
+
+      function itemLevelClass(level) {
+        return level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'ok';
+      }
+
+      function renderDiagnose() {
+        const d = window.__ARTEX_DIAG__;
+        if (!d) {
+          document.getElementById('reason').textContent = '没有取到诊断数据。';
+          return;
+        }
+        document.getElementById('reason').innerHTML = '<b>失败环节：</b>' + esc(d.reason);
+
+        const env = [
+          ['安装目录', d.installDir],
+          ['应用目录', d.appDir],
+          ['数据库根目录', d.pgRoot],
+          ['路径纯 ASCII', d.ascii ? '是' : '否 ← 会导致 initdb 失败'],
+          ['目录可写', d.writable ? '是' : '否 ← 数据库无法初始化'],
+          ['端口 (http/db/proxy)', d.ports ? d.ports.http + ' / ' + d.ports.db + ' / ' + d.ports.proxy : '—'],
+          ['后端地址', d.url],
+          [
+            'VC++ 运行库',
+            d.vc ? (d.vc.ok ? '已就绪（' + (d.vc.bundled ? '安装包内置' : '来自系统') + '）' : '缺：' + d.vc.missing.join(', ')) : '—'
+          ],
+        ];
+        document.getElementById('env').innerHTML = env
+          .map(([k, v]) => '<div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div>')
+          .join('');
+
+        const items = (d.items || []).slice();
+        if (!items.length) items.push({ level: 'ok', title: '前置检查全部通过', detail: '问题出在数据库或后端启动环节，请看下面的日志尾部。' });
+        document.getElementById('items').innerHTML = items
+          .map(
+            (it) =>
+              '<li class="' +
+              itemLevelClass(it.level) +
+              '"><span class="tag ' +
+              itemLevelClass(it.level) +
+              '">' +
+              (it.level === 'error' ? '需修复' : it.level === 'warn' ? '注意' : '正常') +
+              '</span><b>' +
+              esc(it.title) +
+              '</b><div class="hint">' +
+              esc(it.detail) +
+              '</div></li>'
+          )
+          .join('');
+
+        const labels = { shell: '启动器 shell.log', artex: '后端 artex.log', initdb: 'initdb.log', postgres: 'postgres.log' };
+        const logsEl = document.getElementById('logs');
+        logsEl.innerHTML = Object.keys(labels)
+          .map((k) => {
+            const body = (d.tails && d.tails[k]) || '（空）';
+            return (
+              '<details' +
+              (k === 'shell' || k === 'artex' ? ' open' : '') +
+              '><summary>' +
+              labels[k] +
+              '</summary><pre>' +
+              esc(body) +
+              '</pre></details>'
+            );
+          })
+          .join('');
+
+        document.getElementById('paths').textContent =
+          '日志文件：' + d.shellLog + '  |  ' + d.artexLog + '  |  ' + (d.pgLogs ? d.pgLogs.postgres : '');
+      }
+
+      window.renderDiagnose = renderDiagnose;
+
+      document.getElementById('retry').addEventListener('click', () => window.shell && window.shell.retry());
+      document.getElementById('quit').addEventListener('click', () => window.shell && window.shell.quit());
+      document.getElementById('openDir').addEventListener('click', () => {
+        const d = window.__ARTEX_DIAG__ || {};
+        window.shell && window.shell.openPath(d.appDir || d.installDir || '');
+      });
+      document.getElementById('openArtexLog').addEventListener('click', () => {
+        const d = window.__ARTEX_DIAG__ || {};
+        window.shell && window.shell.openPath(d.artexLog || d.appDir || '');
+      });
+
+      // The main process injects window.__ARTEX_DIAG__ right after load; if the
+      // page is opened by itself (reload), pull the record over IPC instead.
+      if (window.__ARTEX_DIAG__) {
+        renderDiagnose();
+      } else if (window.shell && window.shell.diagnose) {
+        window.shell.diagnose().then((d) => {
+          window.__ARTEX_DIAG__ = d;
+          renderDiagnose();
+        });
+      }
+    </script>
+  </body>
+</html>

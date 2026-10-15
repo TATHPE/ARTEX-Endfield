@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'">
+  <title>ARTEX</title>
+  <link rel="stylesheet" href="splash.css">
+</head>
+<body>
+  <!-- Industrial opening sequence, ported from rison114514/grad-research-workbench
+       (boot-sequence.js): logos slide in, a vertical yellow load bar runs with a
+       counter and status copy, then a yellow wipe reveals the workbench.
+       Left identity slot: ARTEX. Right slot: the reference lockup, retitled. -->
+  <div class="boot-sequence" id="bootSequence" role="status" aria-label="ARTEX 正在加载">
+    <div class="boot-material" aria-hidden="true"></div>
+    <div class="boot-contours" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="boot-index" aria-hidden="true">ARTEX / STARTUP PROCEDURE<br>LOCAL OPERATIONS</div>
+
+    <div class="boot-loader">
+      <div class="boot-loader-track"><i id="bootLoaderFill"></i></div>
+      <div class="boot-loader-value" id="bootLoaderValue"><b>000</b><span>%</span></div>
+    </div>
+
+    <div class="boot-identity">
+      <div class="boot-project-logo">
+        <img src="assets/artex-mark.png" alt="ARTEX">
+        <span>ARTEX · 自主渗透测试控制台</span>
+      </div>
+      <div class="boot-logo-divider"><i></i><span>×</span><i></i></div>
+
+      <!-- Reference lockup retitled to ARTEX: inverted survey triangle with
+           topographic contours, the wordmark band, and the caption rule. -->
+      <div class="boot-endfield-logo">
+        <svg class="ef-emblem" viewBox="0 0 640 720" aria-label="ARTEX" role="img">
+          <defs>
+            <clipPath id="efTri">
+              <polygon points="26,44 614,44 320,700"></polygon>
+            </clipPath>
+          </defs>
+          <polygon class="ef-tri" points="26,44 614,44 320,700"></polygon>
+          <g clip-path="url(#efTri)">
+            <path class="ef-contour" d="M120 92 C210 120 250 168 232 214 C214 258 138 268 96 244 C54 220 62 150 120 92 Z"></path>
+            <path class="ef-contour" d="M150 112 C214 136 240 170 228 204 C216 238 158 244 126 226 C94 208 100 156 150 112 Z"></path>
+            <path class="ef-contour" d="M300 76 C400 88 468 118 480 156 C492 196 420 214 350 208 C280 202 236 176 238 144 C240 118 262 74 300 76 Z"></path>
+            <path class="ef-contour" d="M336 100 C404 110 452 132 460 156 C468 182 414 194 364 190 C314 186 288 168 290 148 C292 130 306 98 336 100 Z"></path>
+            <path class="ef-contour" d="M470 240 C540 268 566 320 540 356 C512 394 424 396 380 368 C336 340 344 284 396 254 C424 238 448 232 470 240 Z"></path>
+            <path class="ef-contour" d="M96 320 C150 336 178 372 166 404 C152 438 96 446 62 428 C28 410 34 358 96 320 Z"></path>
+            <g class="ef-ribs">
+              <path d="M300 470 L340 470"></path><path d="M286 512 L354 512"></path>
+              <path d="M272 554 L368 554"></path><path d="M258 596 L382 596"></path>
+              <path d="M244 638 L396 638"></path><path d="M230 680 L410 680"></path>
+            </g>
+            <rect class="ef-band" x="0" y="246" width="640" height="118"></rect>
+            <text class="ef-wordmark" x="320" y="312">ARTEX</text>
+          </g>
+          <!-- caption line + its dashes live OUTSIDE the triangle clip, exactly as
+               in the reference lockup, where the rule overhangs the sides -->
+          <g class="ef-rule">
+            <path d="M28 404 L168 404"></path>
+            <path d="M472 404 L612 404"></path>
+          </g>
+          <text class="ef-caption" x="320" y="404">AUTONOMOUS PENTEST CONSOLE</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="boot-status-copy" id="bootStatusCopy"><span>INITIALIZING</span><b>初始化本地运行时</b></div>
+    <div class="boot-yellow-wipe" id="bootYellowWipe" aria-hidden="true"></div>
+  </div>
+
+  <script src="splash.js"></script>
+</body>
+</html>

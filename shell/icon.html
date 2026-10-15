@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>ARTEX icon</title>
+<style>
+  /* App 图标 v3 —— 照号主给的图（三角区域内填满等高线 + 字带 + 两侧短横线夹住的副标题
+     + 背景斜线底纹），主字由「终末地」换成 ARTEX，副标题保留 ENDFIELD INDUSTRIES。 */
+  @font-face { font-family: "EF Display"; src: url("assets/fonts/BarlowCondensed-700.woff2") format("woff2"); font-weight: 700; }
+  @font-face { font-family: "EF Mono"; src: url("assets/fonts/DMMono-500.woff2") format("woff2"); font-weight: 500; }
+  :root { --yellow: #F4ED17; --ink: #111416; --paper: #E8E8E2; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 1024px; overflow: hidden; background: var(--ink); }
+  .icon { position: relative; width: 1024px; height: 1024px;
+    background: linear-gradient(165deg, #1A1E21 0%, #111416 58%, #0B0D0F 100%); }
+  .hatch { position: absolute; inset: 0; opacity: .10;
+    background-image: repeating-linear-gradient(58deg, rgba(232,232,226,.9) 0 2px, transparent 2px 16px); }
+  .frame { position: absolute; inset: 38px; border: 4px solid rgba(232,232,226,.15); }
+  .ticks span { position: absolute; width: 46px; height: 46px; border-style: solid; border-width: 0; border-color: rgba(232,232,226,.4); }
+  .ticks span:nth-child(1) { left: 92px; top: 92px; border-left-width: 4px; border-top-width: 4px; }
+  .ticks span:nth-child(2) { right: 92px; top: 92px; border-right-width: 4px; border-top-width: 4px; }
+  .ticks span:nth-child(3) { left: 92px; bottom: 92px; border-left-width: 4px; border-bottom-width: 4px; }
+  .ticks span:nth-child(4) { right: 92px; bottom: 92px; border-right-width: 4px; border-bottom-width: 4px; }
+  svg.emblem { position: absolute; left: 50%; top: 50%; width: 800px; height: 900px; transform: translate(-50%, -52%); }
+  .tri { fill: rgba(232,232,226,.05); stroke: rgba(232,232,226,.72); stroke-width: 7; }
+  .contour { fill: none; stroke: rgba(232,232,226,.5); stroke-width: 5; }
+  .contour.thin { stroke-width: 3.5; stroke: rgba(232,232,226,.34); }
+  .ribs path { stroke: rgba(232,232,226,.3); stroke-width: 6; }
+  .band { fill: var(--paper); }
+  .word { fill: var(--ink); font-family: "EF Display", "Arial Narrow", sans-serif; font-weight: 700;
+          font-size: 158px; letter-spacing: 3px; }
+  .rule path { stroke: rgba(232,232,226,.62); stroke-width: 5; }
+  .caption { fill: rgba(232,232,226,.82); font-family: "EF Mono", monospace; font-weight: 500;
+             font-size: 27px; letter-spacing: 5px; }
+  .hazard { position: absolute; left: 38px; right: 38px; bottom: 38px; height: 16px;
+    background: repeating-linear-gradient(135deg, var(--yellow) 0 14px, var(--ink) 14px 28px); }
+</style>
+</head>
+<body>
+  <div class="icon">
+    <div class="hatch"></div>
+    <div class="frame"></div>
+    <div class="ticks"><span></span><span></span><span></span><span></span></div>
+
+    <svg class="emblem" viewBox="0 0 640 720" aria-label="ARTEX">
+      <defs><clipPath id="triClip"><polygon points="20,40 620,40 320,706" /></clipPath></defs>
+      <polygon class="tri" points="20,40 620,40 320,706" />
+      <g clip-path="url(#triClip)">
+        <path class="contour" d="M60 92 C160 104 214 150 200 196 C186 240 104 252 58 226 C12 200 20 122 60 92 Z" />
+        <path class="contour thin" d="M86 110 C160 120 196 152 186 186 C176 220 116 228 84 210 C52 192 58 136 86 110 Z" />
+        <path class="contour" d="M232 74 C330 84 420 112 436 148 C452 186 372 208 300 204 C228 200 186 172 190 140 C194 116 208 72 232 74 Z" />
+        <path class="contour thin" d="M262 96 C336 104 396 124 406 148 C416 174 356 188 304 184 C252 180 226 162 230 142 C234 128 242 94 262 96 Z" />
+        <path class="contour" d="M462 214 C556 240 592 300 560 344 C528 388 424 392 372 358 C320 324 330 262 392 232 C424 216 442 208 462 214 Z" />
+        <path class="contour thin" d="M478 240 C540 258 562 296 542 322 C522 348 456 350 420 330 C384 310 390 274 430 254 C452 242 466 236 478 240 Z" />
+        <path class="contour" d="M64 300 C138 320 176 366 162 406 C148 446 74 456 32 434 C-10 412 -4 350 64 300 Z" />
+        <path class="contour thin" d="M96 320 C148 334 172 364 162 388 C152 412 102 418 74 404 C46 390 50 350 96 320 Z" />
+        <g class="ribs">
+          <path d="M300 468 L340 468" /><path d="M286 510 L354 510" /><path d="M272 552 L368 552" />
+          <path d="M258 594 L382 594" /><path d="M244 636 L396 636" /><path d="M230 678 L410 678" />
+        </g>
+        <rect class="band" x="0" y="246" width="640" height="118" />
+        <text class="word" x="320" y="312" text-anchor="middle" dominant-baseline="middle">ARTEX</text>
+      </g>
+      <g class="rule"><path d="M24 404 L170 404" /><path d="M470 404 L616 404" /></g>
+      <text class="caption" x="320" y="404" text-anchor="middle" dominant-baseline="middle">ENDFIELD INDUSTRIES</text>
+    </svg>
+
+    <div class="hazard"></div>
+  </div>
+</body>
+</html>
