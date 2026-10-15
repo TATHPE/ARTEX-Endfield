@@ -64,7 +64,7 @@ export default function Layout({ children }: Readonly<{ children: ReactNode }>) 
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
-      className="relative"
+      className="relative z-10"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 68)",
