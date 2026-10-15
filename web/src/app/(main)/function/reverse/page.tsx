@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import {
+  CpuIcon,
   FileSearchIcon,
   FileTextIcon,
   Loader2Icon,
@@ -102,6 +103,75 @@ function aggregateReaCalls(cmds: CommandRecord[]): ReaCall[] {
   return [...byTool.values()].sort((a, b) => b.total - a.total);
 }
 
+// REA 在 provider 不可用时会给出结构化诊断：details.rejections[] 逐个引擎带上
+// provider_id / code / reason / diagnostics（含 Java 探测结果）。解析它就能在不装
+// Ghidra 的情况下说清"缺什么、为什么"。
+type ProviderStatus = {
+  id: string;
+  code: string;
+  reason: string;
+  platform?: string;
+  javaVersion?: string;
+  javaCommand?: string;
+};
+
+type ProviderDiag = { providers: ProviderStatus[]; at?: string };
+
+function parseProviderStatus(cmds: CommandRecord[]): ProviderDiag {
+  for (const cmd of cmds) {
+    const out = cmd.output || "";
+    if (!out.includes("provider_id") || !out.includes("rejections")) continue;
+    const start = out.indexOf("{");
+    if (start < 0) continue;
+    try {
+      const doc = JSON.parse(out.slice(start)) as {
+        error?: { details?: { rejections?: Array<Record<string, unknown>> } };
+      };
+      const rejections = doc.error?.details?.rejections;
+      if (!Array.isArray(rejections) || rejections.length === 0) continue;
+      const providers = rejections.map((r) => {
+        const d = (r.diagnostics ?? {}) as Record<string, unknown>;
+        const str = (v: unknown) => (v === undefined || v === null ? undefined : String(v));
+        return {
+          id: String(r.provider_id ?? "?"),
+          code: String(r.code ?? "unknown"),
+          reason: String(r.reason ?? ""),
+          platform: str(d.platform),
+          javaVersion: str(d.java_version),
+          javaCommand: str(d.java_command),
+        };
+      });
+      return { providers, at: cmd.created_at };
+    } catch {
+      /* 结构不同就继续找下一条 */
+    }
+  }
+  return { providers: [] };
+}
+
+const PROVIDER_LABEL: Record<string, string> = {
+  ghidra: "Ghidra",
+  ida: "IDA",
+  hopper: "Hopper",
+  rizin: "rizin",
+  cutter: "Cutter",
+  jadx: "JADX",
+  apktool: "apktool",
+  frida: "Frida",
+};
+
+// 未就绪的原因码 → 颜色：能靠"配置/安装"解决的用琥珀，平台不支持的用中性。
+function providerTone(code: string): string {
+  if (code === "not_configured" || code === "executable_missing" || code === "version_unresolved") {
+    return toneClasses.amber;
+  }
+  if (code === "unsupported_host") return toneClasses.slate;
+  return toneClasses.neutral;
+}
+
+// 非 ASCII 检测：不用正则（Biome 的 noControlCharactersInRegex 会拦），直接看码点。
+const hasNonAscii = (s: string) => [...s].some((ch) => ch.charCodeAt(0) > 127);
+
 const DEFAULT_GOAL = (sample: string) =>
   [
     `Statically analyze the self-authored sample at ${sample}.`,
@@ -146,8 +216,24 @@ export default function ReversePage() {
   const [commands, setCommands] = React.useState<CommandRecord[]>([]);
   const [commandsLoading, setCommandsLoading] = React.useState(false);
   const [callDetail, setCallDetail] = React.useState<CommandRecord | null>(null);
+  // 引擎状态卡不依赖选中任务：始终扫一遍最近的工具调用，从中找 REA 的 provider 诊断。
+  const [globalCommands, setGlobalCommands] = React.useState<CommandRecord[]>([]);
+  const [globalLoading, setGlobalLoading] = React.useState(false);
 
   const rea = React.useMemo(() => servers.find((s) => s.name.toLowerCase() === "rea") ?? null, [servers]);
+  const loadGlobalCommands = React.useCallback(() => {
+    setGlobalLoading(true);
+    api
+      .commands({ size: 300 })
+      .then((r) => setGlobalCommands(r.commands ?? []))
+      .catch(() => setGlobalCommands([]))
+      .finally(() => setGlobalLoading(false));
+  }, []);
+  const engineDiag = React.useMemo(
+    () => parseProviderStatus(commands.length > 0 ? commands : globalCommands),
+    [commands, globalCommands],
+  );
+  const javaPathNonAscii = engineDiag.providers.some((p) => !!p.javaCommand && hasNonAscii(p.javaCommand));
 
   const loadServers = React.useCallback(() => {
     setServersLoading(true);
@@ -221,7 +307,8 @@ export default function ReversePage() {
   React.useEffect(() => {
     loadServers();
     loadTasks();
-  }, [loadServers, loadTasks]);
+    loadGlobalCommands();
+  }, [loadServers, loadTasks, loadGlobalCommands]);
 
   React.useEffect(() => {
     if (rea) loadTools(rea.id);
@@ -399,6 +486,65 @@ export default function ReversePage() {
               <code className="max-w-full truncate font-mono text-muted-foreground text-xs">
                 {rea.command} {(rea.args ?? []).join(" ")}
               </code>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 分析引擎（REA provider）状态：诊断取自失败详情，不需要装 Ghidra 也能看到缺什么 */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-center gap-2">
+            <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
+            <CardTitle className="text-base">分析引擎（REA provider）</CardTitle>
+            {globalLoading ? <Loader2Icon className="size-4 animate-spin text-muted-foreground" /> : null}
+            <span className="ml-auto text-muted-foreground text-xs">
+              {engineDiag.at ? `诊断来自 ${fmtTime(engineDiag.at)} 的一次调用` : "尚无诊断"}
+            </span>
+            <Button variant="ghost" size="icon" className="size-8" title="重新探测" onClick={loadGlobalCommands}>
+              <RefreshCwIcon className="size-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {engineDiag.providers.length === 0 ? (
+            <span className="text-muted-foreground text-sm">
+              还没有可解析的引擎诊断：跑一次分析任务后，REA 会把各引擎的可用性与缺失原因写进失败详情，这里会自动显示 ——
+              不装 Ghidra 也能看清"缺什么、为什么"。
+            </span>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {engineDiag.providers.map((p) => (
+                  <span
+                    key={p.id}
+                    className={cn("rounded-md border px-2 py-0.5 font-medium text-xs", providerTone(p.code))}
+                    title={p.reason}
+                  >
+                    {PROVIDER_LABEL[p.id] ?? p.id}：
+                    {p.code === "unsupported_host" ? "平台不支持" : p.code === "not_configured" ? "未配置" : "未就绪"}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-col gap-1">
+                {engineDiag.providers.map((p) => (
+                  <p key={p.id} className="text-muted-foreground text-xs">
+                    <span className="font-mono">{p.id}</span> → <span className="font-mono">{p.code}</span>
+                    {p.reason ? <span>：{p.reason}</span> : null}
+                    {p.javaVersion ? <span>（Java {p.javaVersion} 已检测到）</span> : null}
+                  </p>
+                ))}
+              </div>
+              <span className="text-muted-foreground text-xs">
+                启用深度反编译：解压 Ghidra 到<strong>纯 ASCII 路径</strong>并设{" "}
+                <code className="font-mono">GHIDRA_INSTALL_DIR</code>（绝对值）+{" "}
+                <code className="font-mono">JAVA_HOME</code>，然后重启 ARTEX。Ghidra/IDA 不随安装包分发。
+              </span>
+              {javaPathNonAscii ? (
+                <span className={cn("rounded-md border px-2 py-0.5 font-medium text-xs", toneClasses.amber)}>
+                  检测到的 Java 路径含非 ASCII 字符，启用 Ghidra 前建议换成纯 ASCII 的 JDK 目录
+                </span>
+              ) : null}
             </>
           )}
         </CardContent>

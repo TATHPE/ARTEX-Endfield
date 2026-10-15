@@ -39,6 +39,9 @@ REA 是一个面向"逆向工程一切"的 MCP server + CLI（二进制/APK/固�
    - **结论**：任务产出的 fact / intent / goal（Markdown 渲染）。
    - **证据文件**：`tasks/<任务 id>/` 下的证据（如 `EVIDENCE_strings.md`、`strings_ascii.json`）。
    - **REA 工具调用**：从 `ExecuteExtraTool` 入参里的 `tool_name` 还原**真实工具名**，并统计调用/失败。
+5. 页面第二张卡「**分析引擎（REA provider）**」不用选中任务就可用：它从 REA 失败详情的
+   `details.rejections[]` 解析逐引擎诊断，直接显示 Ghidra / IDA / Hopper 的 `code` 与原文原因，并给出启用步骤；
+   若检测到的 Java 路径含非 ASCII 字符会额外告警（Ghidra + 中文路径是已知风险面）。没有历史失败记录时显示"尚无诊断"。
 
 ## 4. 已知限制与对策
 
