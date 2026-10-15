@@ -31,6 +31,25 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 
 ---
 
+> ## 🧪 本 fork 的第二个改动：REA 逆向分析整合（v2.2.1 起）
+>
+> 把 [REA](https://github.com/morluto/rea)（`rea-agents`：面向二进制 / APK / 固件 / JS 的 MCP server + CLI）接入为 ARTEX 的 **MCP 工具服务器**，
+> 新增侧栏页 **「功能 → 逆向分析」**：样本上传（或填本机路径）→ 一键建**只读**分析任务 → 结果分「结论 / 证据文件 / REA 工具调用」三视图；
+> 页面上还有 **「分析引擎（REA provider）」状态卡**，直接显示 Ghidra / IDA / Hopper 的就绪度与缺失原因。
+>
+> | 改动 | 位置 |
+> | --- | --- |
+> | 逆向分析页（新增） | `web/src/app/(main)/function/reverse/page.tsx` |
+> | 侧栏入口（新增） | `web/src/navigation/sidebar/sidebar-items.ts` |
+> | 后端：内置 REA 运行时**自愈种子** + 技能默认可见性 | `db/db.go`（`seedBundledREA()`、`builtinSkillVisibility`） |
+> | 随包技能（REA 原样副本，MIT，`mcps: rea` 门控） | `skills/reverse-engineer-anything/` |
+> | 安装包**内置 Node + REA 运行时**（开箱离线可用；**Ghidra / IDA 不内置**，按需自装） | 壳 `extraResources`：`payload/node`→`resources/node`、`payload/rea/node_modules`→`resources/rea/node_modules` |
+> | 集成说明（开箱行为 / 使用流程 / 已知限制 / MIT 署名 / 维护方法） | [`REA-INTEGRATION.md`](REA-INTEGRATION.md) |
+>
+> **合规前提**：REA 只用于**自有软件、自有资产或获得明确授权的目标**；页面预置的目标模板已写死"只读、单文件、不执行、不联网、不利用"。
+
+---
+
 ## 截图预览
 
 > 下图为**本 fork 的终末地主题版**实机截图（Windows 独立窗口版，动画均在应用窗口内播放）。原始交互见上游[在线 Demo](https://artex-demo.vercel.app/)。
@@ -42,6 +61,10 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 | 仪表盘（墨底侧栏 + 危险条纹 + 等宽读数） | 登录页（纸底 · 主黄只作标记） |
 | :---: | :---: |
 | ![仪表盘](screenshots/endfield-dashboard.png) | ![登录页](screenshots/endfield-login.png) |
+
+| 逆向分析（新增页 · REA MCP 接入 · 结论 / 证据文件 / REA 工具调用三视图） | 分析引擎状态（Ghidra / IDA / Hopper 就绪度与缺失原因） |
+| :---: | :---: |
+| ![逆向分析](screenshots/reverse-analysis.png) | ![分析引擎状态](screenshots/reverse-engine-status.png) |
 
 | 应用图标（三角徽标 · ARTEX · 16/24/32/48/64/128/256） |
 | :---: |
