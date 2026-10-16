@@ -1,0 +1,31 @@
+name: 💡 功能建议
+description: 想要的新功能、体验改进、主题/资源相关想法
+title: "[建议] "
+labels: ["enhancement"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: ARTEX 版本
+      placeholder: "2.2.1"
+    validations:
+      required: false
+  - type: textarea
+    id: idea
+    attributes:
+      label: 你想要什么
+      description: 说清"用在什么场景 + 期望的效果"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 为什么需要 / 现在怎么绕过的
+    validations:
+      required: false
+  - type: textarea
+    id: refs
+    attributes:
+      label: 参考（截图、链接、同类产品做法）
+    validations:
+      required: false
