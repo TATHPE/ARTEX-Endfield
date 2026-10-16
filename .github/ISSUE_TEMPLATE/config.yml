@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 下载最新安装包 / 看更新说明
+    url: https://github.com/TATHPE/ARTEX-Endfield/releases
+    about: Releases 里有各版本安装包与变更说明，先确认你用的不是旧版。
+  - name: 先读 README（安装、常见问题）
+    url: https://github.com/TATHPE/ARTEX-Endfield#readme
+    about: 安装步骤与已知问题大多写在 README 里。
