@@ -4042,9 +4042,13 @@ func securityHeaders(next http.Handler) http.Handler {
 	})
 }
 
+// cors answers only loopback dev origins, and only when the request actually
+// carries one. There is deliberately no wildcard: the audit showed ACAO:* was
+// returned unconditionally (even without an Origin header), which let any site
+// read the unauthenticated endpoints. Production is same-origin, so browsers
+// need no CORS header at all.
 func cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		// Next dev and the Go SSE endpoint use different ports on the same
 		// loopback host. Allow the gate cookie only for that local pairing.
 		origin := r.Header.Get("Origin")
