@@ -1,0 +1,74 @@
+name: 🐞 Bug 报告
+description: 安装 / 启动 / 功能异常，请用这个模板
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量填全 —— **缺少版本、Windows 版本与日志的问题很难定位**。
+        提交前请先搜索现有 Issues，避免重复。
+  - type: input
+    id: version
+    attributes:
+      label: ARTEX 版本
+      description: 安装包版本（安装包文件名或"关于"里可见）
+      placeholder: "2.2.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 出问题的部分
+      options:
+        - 安装 / 卸载
+        - 启动 / 崩溃
+        - 界面 / 主题（Endfield 皮肤）
+        - REA 集成（终端 / 资源解析）
+        - 性能 / 卡顿
+        - 其他
+    validations:
+      required: true
+  - type: input
+    id: winver
+    attributes:
+      label: Windows 版本
+      placeholder: "Windows 11 23H2（22631）"
+    validations:
+      required: true
+  - type: input
+    id: install_path
+    attributes:
+      label: 安装路径
+      placeholder: "D:\\ARTEX"
+    validations:
+      required: false
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: 现象与复现步骤
+      description: 做了什么 → 期望什么 → 实际什么
+      placeholder: |
+        1. 打开 …
+        2. 点击 …
+        3. 期望：…；实际：…
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志 / 截图 / 报错文本
+      description: 可直接粘贴，或把图片拖进来（**粘贴前请抹掉任何密钥 / 令牌**）
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 自查
+      options:
+        - label: 我已搜索过现有 Issues，没有重复
+          required: true
+        - label: 我用的是最新版安装包
+          required: false
+        - label: 我已升级/重装过一次并复现
+          required: false

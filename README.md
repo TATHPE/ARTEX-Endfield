@@ -672,3 +672,9 @@ https://github.com/oritera/Cairn
 ### 免责声明
 
 本项目按“现状（AS IS）”提供，不附带任何明示或默示的担保。作者及贡献者不对使用本工具（无论使用方式是否得当）所导致的任何直接或间接损失、数据丢失、系统损坏或法律纠纷承担责任。**下载、安装或使用本项目，即表示你已阅读、理解并同意上述全部条款。**
+
+## 反馈与问题
+
+- 🐞 报 Bug / 提建议：**[新建 Issue](https://github.com/TATHPE/ARTEX-Endfield/issues/new/choose)**（请填 ARTEX 版本、Windows 版本、复现步骤；有日志或截图更好）
+- ⬇️ 下载与更新日志：**[Releases](https://github.com/TATHPE/ARTEX-Endfield/releases)**
+- 提问前先搜一下现有 Issues，避免重复。
