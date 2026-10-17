@@ -119,6 +119,17 @@ export const PreferencesStoreProvider = ({
       ...domState,
       isSynced: true,
     }));
+
+    // Cold-start self-heal: the cookie store can still be warming up when the
+    // first paint runs, in which case the read above only saw defaults. Re-read
+    // once shortly after mount; a non-empty cookie value wins.
+    const timer = setTimeout(() => {
+      const fresh = readDomState();
+      if (!fresh.themeMode && !fresh.themePreset) return;
+      store.setState((prev) => ({ ...prev, ...fresh, isSynced: true }));
+      domSnapshotRef.current = fresh;
+    }, 400);
+    return () => clearTimeout(timer);
   }, [store]);
 
   useEffect(() => {

@@ -20,7 +20,7 @@
 //      exit 0 -> quit, 75 -> restart at once (in-page update), other -> backoff
 'use strict';
 
-const { app, BrowserWindow, ipcMain, shell, Menu, screen, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Menu, screen, Notification, session } = require('electron');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -216,6 +216,18 @@ function stopPostgres() {
     logLine(`postgres stop rc=${r.status}`);
   } catch (err) {
     logLine(`postgres stop failed: ${err}`);
+  }
+}
+
+// Chromium restores the persistent cookie store asynchronously. A renderer that
+// reads document.cookie on its very first paint can therefore see an EMPTY jar,
+// which made saved preferences fall back to their defaults on every cold start.
+// Reading the store from the main process first forces that load to finish.
+async function warmCookieStore() {
+  try {
+    await session.defaultSession.cookies.get({ url: APP_URL });
+  } catch (err) {
+    logLine(`cookie warm-up failed: ${err}`);
   }
 }
 
@@ -655,6 +667,7 @@ async function boot() {
     APP_URL = `http://127.0.0.1:${PORT}`;
     logLine(`reusing running ARTEX at ${APP_URL} (version ${running.version || '?'})`);
     if (mainWin && !mainWin.isDestroyed()) {
+      await warmCookieStore();
       try {
         await mainWin.webContents.loadURL(APP_URL);
       } catch (err) {
@@ -726,6 +739,7 @@ async function boot() {
   logLine(`health ok: ${JSON.stringify(health)}`);
 
   if (mainWin && !mainWin.isDestroyed()) {
+    await warmCookieStore();
     try {
       await mainWin.webContents.loadURL(APP_URL);
     } catch (err) {
