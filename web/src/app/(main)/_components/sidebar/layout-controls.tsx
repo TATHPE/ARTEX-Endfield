@@ -1,9 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Settings } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -21,8 +25,44 @@ import { persistPreference } from "@/lib/preferences/preferences-storage";
 import { THEME_PRESET_OPTIONS, type ThemeMode, type ThemePreset } from "@/lib/preferences/theme";
 import { applyThemePreset } from "@/lib/preferences/theme-utils";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
+import { api } from "@/lib/api";
 
 export function LayoutControls() {
+  const [hidePenguin, setHidePenguin] = useState(false);
+  const [uiLoaded, setUiLoaded] = useState(false);
+  const [uiSaving, setUiSaving] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    api
+      .uiConfig()
+      .then((cfg) => {
+        if (!alive) return;
+        setHidePenguin(cfg.hide_penguin);
+        setUiLoaded(true);
+      })
+      .catch(() => {
+        if (alive) setUiLoaded(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const saveHidePenguin = async (next: boolean) => {
+    setUiSaving(true);
+    try {
+      const cfg = await api.saveUiConfig({ hide_penguin: next });
+      setHidePenguin(cfg.hide_penguin);
+      window.dispatchEvent(new CustomEvent("artex:ui-config", { detail: cfg }));
+      toast.success(cfg.hide_penguin ? "已隐藏右下角企鹅水印" : "已显示右下角企鹅水印");
+    } catch {
+      toast.error("保存失败");
+    } finally {
+      setUiSaving(false);
+    }
+  };
+
   const themeMode = usePreferencesStore((s) => s.themeMode);
   const resolvedThemeMode = usePreferencesStore((s) => s.resolvedThemeMode);
   const setThemeMode = usePreferencesStore((s) => s.setThemeMode);
@@ -252,6 +292,21 @@ export function LayoutControls() {
                   OffCanvas
                 </ToggleGroupItem>
               </ToggleGroup>
+            </div>
+
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="hide-penguin" className="font-medium text-xs">
+                Hide Watermark
+              </Label>
+              <Switch
+                id="hide-penguin"
+                aria-label="Hide the penguin watermark"
+                checked={hidePenguin}
+                disabled={!uiLoaded || uiSaving}
+                onCheckedChange={(checked) => {
+                  void saveHidePenguin(checked);
+                }}
+              />
             </div>
 
             <Button type="button" size="sm" variant="outline" className="w-full text-xs" onClick={handleRestore}>

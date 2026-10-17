@@ -25,21 +25,61 @@ function getSafeValue<T extends string>(raw: string | null, allowed: readonly T[
   return allowed.includes(raw as T) ? (raw as T) : undefined;
 }
 
+// The preferences are persisted as cookies (see preferences-config). Reading
+// them here is the authoritative path: the <head> boot script is only emitted
+// inside Next's RSC payload, so an innerHTML-inserted <script> never executes and
+// the DOM attributes stay at their server-rendered defaults. Cookies always work.
+function readCookiePreference(key: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const row = document.cookie.split("; ").find((c) => c.startsWith(`${key}=`));
+  if (!row) return undefined;
+  try {
+    return decodeURIComponent(row.slice(key.length + 1));
+  } catch {
+    return row.slice(key.length + 1);
+  }
+}
+
+function preferCookie(key: string, domValue: string | null): string | null {
+  const cookie = readCookiePreference(key);
+  return cookie ?? domValue;
+}
+
 function readDomState(): Partial<PreferencesState> {
   const root = document.documentElement;
 
-  const themeModeAttr = getSafeValue(root.getAttribute("data-theme-mode"), THEME_MODE_VALUES);
-  const resolvedMode = root.classList.contains("dark") ? "dark" : "light";
+  const themeModeAttr = getSafeValue(
+    preferCookie("theme_mode", root.getAttribute("data-theme-mode")),
+    THEME_MODE_VALUES,
+  );
+  const resolvedMode =
+    themeModeAttr === "system"
+      ? typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : (themeModeAttr ?? (root.classList.contains("dark") ? "dark" : "light"));
 
   return {
     themeMode: themeModeAttr ?? resolvedMode,
     resolvedThemeMode: resolvedMode,
-    themePreset: getSafeValue(root.getAttribute("data-theme-preset"), THEME_PRESET_VALUES),
-    font: getSafeValue(root.getAttribute("data-font"), FONT_VALUES),
-    contentLayout: getSafeValue(root.getAttribute("data-content-layout"), CONTENT_LAYOUT_VALUES),
-    navbarStyle: getSafeValue(root.getAttribute("data-navbar-style"), NAVBAR_STYLE_VALUES),
-    sidebarVariant: getSafeValue(root.getAttribute("data-sidebar-variant"), SIDEBAR_VARIANT_VALUES),
-    sidebarCollapsible: getSafeValue(root.getAttribute("data-sidebar-collapsible"), SIDEBAR_COLLAPSIBLE_VALUES),
+    themePreset: getSafeValue(preferCookie("theme_preset", root.getAttribute("data-theme-preset")), THEME_PRESET_VALUES),
+    font: getSafeValue(preferCookie("font", root.getAttribute("data-font")), FONT_VALUES),
+    contentLayout: getSafeValue(
+      preferCookie("content_layout", root.getAttribute("data-content-layout")),
+      CONTENT_LAYOUT_VALUES,
+    ),
+    navbarStyle: getSafeValue(
+      preferCookie("navbar_style", root.getAttribute("data-navbar-style")),
+      NAVBAR_STYLE_VALUES,
+    ),
+    sidebarVariant: getSafeValue(
+      preferCookie("sidebar_variant", root.getAttribute("data-sidebar-variant")),
+      SIDEBAR_VARIANT_VALUES,
+    ),
+    sidebarCollapsible: getSafeValue(
+      preferCookie("sidebar_collapsible", root.getAttribute("data-sidebar-collapsible")),
+      SIDEBAR_COLLAPSIBLE_VALUES,
+    ),
   };
 }
 

@@ -17,7 +17,6 @@ import type { Settings } from "@/lib/types";
 
 import { UpdateCard } from "./_components/update-card";
 import { BasicAuthCard } from "./_components/basic-auth-card";
-import { UiCard } from "./_components/ui-card";
 
 export default function SystemSettingsPage() {
   const [trafficCapture, setTrafficCapture] = React.useState(false);
@@ -269,7 +268,6 @@ export default function SystemSettingsPage() {
           column-gap 只管列间距，行间距要由子元素自己给。 */}
       <div className="columns-1 gap-4 md:gap-6 lg:columns-2">
         <UpdateCard />
-        <UiCard />
         <BasicAuthCard />
 
         <Card className="mb-4 break-inside-avoid md:mb-6">
