@@ -116,11 +116,11 @@ func extractToken(r *http.Request) string {
 }
 
 // requireAuth wraps h with JWT validation.
-// /api/auth/*, /api/health and the Basic Auth gate check are exempt.
+// /api/auth/*, /api/health, /api/ui-config and the Basic Auth gate check are exempt.
 func (s *Server) requireAuth(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := r.URL.Path
-		if strings.HasPrefix(p, "/api/auth/") || p == "/api/health" || p == "/api/basic-auth/check" {
+		if strings.HasPrefix(p, "/api/auth/") || p == "/api/health" || p == "/api/ui-config" || p == "/api/basic-auth/check" {
 			h.ServeHTTP(w, r)
 			return
 		}
