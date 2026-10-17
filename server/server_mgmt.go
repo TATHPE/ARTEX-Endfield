@@ -1988,6 +1988,10 @@ func (s *Server) pgListModels(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, err.Error())
 		return
 	}
+	if err := validateUpstreamBaseURL(req.BaseURL); err != nil {
+		writeErr(w, 400, err.Error())
+		return
+	}
 	// Resolve API key: form input > profile stored key.
 	apiKey := strings.TrimSpace(req.APIKey)
 	if apiKey == "" && req.ProfileID != nil {

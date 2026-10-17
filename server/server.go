@@ -1004,7 +1004,7 @@ func (s *Server) Handler() http.Handler {
 	root := http.NewServeMux()
 	root.Handle("/api/", api)
 	root.Handle("/", s.webuiHandler())
-	return s.requireBasicAuth(root)
+	return securityHeaders(s.requireBasicAuth(root))
 }
 
 // --- handlers ---
@@ -1478,6 +1478,10 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 		SessionHeaderKey string `json:"session_header_key"` // 非空=测试时也带该自定义会话头，值为一次性随机 session id
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeErr(w, 400, err.Error())
+		return
+	}
+	if err := validateUpstreamBaseURL(req.BaseURL); err != nil {
 		writeErr(w, 400, err.Error())
 		return
 	}
@@ -4021,6 +4025,22 @@ func (s *Server) gc(w http.ResponseWriter, r *http.Request) {
 }
 
 // --- utils ---
+
+// securityHeaders sets the response hardening the audit found missing: a CSP
+// that keeps the Next static export working while forbidding external script
+// loads, plus clickjacking / sniffing / referrer protection.
+func securityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("Content-Security-Policy", "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; "+
+			"script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "+
+			"font-src 'self' data:; connect-src 'self'")
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("X-Frame-Options", "DENY")
+		h.Set("Referrer-Policy", "no-referrer")
+		next.ServeHTTP(w, r)
+	})
+}
 
 func cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

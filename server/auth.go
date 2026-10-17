@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -272,7 +273,15 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, "请求格式错误")
 		return
 	}
+	ip := clientIPOf(r)
+	if wait := loginLimiter.blockedFor(ip); wait > 0 {
+		secs := int(wait.Seconds()) + 1
+		w.Header().Set("Retry-After", strconv.Itoa(secs))
+		writeErr(w, 429, fmt.Sprintf("尝试过于频繁，请 %d 秒后再试", secs))
+		return
+	}
 	if req.Username != "ARTEX" {
+		loginLimiter.recordFailure(ip)
 		writeErr(w, 401, "用户名或密码错误")
 		return
 	}
@@ -286,9 +295,11 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.Password)); err != nil {
+		loginLimiter.recordFailure(ip)
 		writeErr(w, 401, "用户名或密码错误")
 		return
 	}
+	loginLimiter.recordSuccess(ip)
 	tok, err := signJWT(s.jwtKey)
 	if err != nil {
 		writeErr(w, 500, "token 生成失败")
