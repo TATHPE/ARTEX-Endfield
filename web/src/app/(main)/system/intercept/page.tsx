@@ -351,7 +351,7 @@ function JudgeCard() {
                 </Button>
               </div>
               <Textarea
-                className="field-sizing-fixed min-h-[22rem] max-h-[none] flex-1 resize-none font-mono text-xs leading-relaxed"
+                className="field-sizing-fixed min-h-[22rem] max-h-[60vh] flex-1 resize-none overflow-auto font-mono text-xs leading-relaxed"
                 value={cfg.prompt}
                 onChange={(e) => patch({ prompt: e.target.value })}
                 placeholder="留空使用内置模板"
@@ -427,8 +427,24 @@ function JudgeCard() {
                       aria-describedby="judge-retry-interval-hint"
                     />
                     <FieldDescription id="judge-retry-interval-hint">
-                      默认 1000 毫秒，0 表示立即重试。每次审批均有独立超时，全部尝试失败后执行下方失败策略。模型配置中的建连和空响应重试仍在每次审批内生效。
+                      默认 1000 毫秒，0 表示立即重试。重试按 ×1/×2/×4/×8 退避（±20% 抖动）。
                     </FieldDescription>
+                    <p className="text-muted-foreground text-xs">
+                      最坏情况一次审批要等约{' '}
+                      {(() => {
+                        const n = Math.max(0, Number(cfg.retry_count) || 0);
+                        let backoff = 0;
+                        for (let i = 1; i <= n; i += 1) {
+                          backoff += (Number(cfg.retry_interval_ms) || 0) * Math.min(2 ** (i - 1), 8);
+                        }
+                        const budget = backoff + (n + 1) * Math.max(0, Number(cfg.timeout_seconds) || 0) * 1000;
+                        if (budget <= 0) return '不到 1 秒';
+                        const mins = Math.floor(budget / 60000);
+                        const secs = Math.round((budget % 60000) / 1000);
+                        return mins > 0 ? `${mins} 分 ${secs} 秒` : `${secs} 秒`;
+                      })()}
+                      （退避 + 每次超时）。
+                    </p>
                   </FormField>
                 </FieldGroup>
                 <Field label="模型失败时（重试耗尽后）">

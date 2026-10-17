@@ -625,7 +625,12 @@ func (s *Server) requestLimiterForProfileLocked(id int64) *agent.RequestLimiter 
 		s.requestLimiters = make(map[int64]*agent.RequestLimiter)
 	}
 	if s.requestLimiters[id] == nil {
-		s.requestLimiters[id] = &agent.RequestLimiter{}
+		lim := &agent.RequestLimiter{}
+		// Real traffic gets jitter and an in-flight cap; the agent package keeps
+		// its zero value deterministic for the exact-timing tests.
+		lim.EnableJitter()
+		lim.EnableConcurrency()
+		s.requestLimiters[id] = lim
 	}
 	return s.requestLimiters[id]
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"math/rand/v2"
 	"net/http"
 	"sync"
 	"time"
@@ -17,6 +18,13 @@ type RequestLimiter struct {
 	windows [2]requestWindow
 	sent    []time.Time
 	changed chan struct{}
+
+	// jitter spreads waits so independent limiters do not retry in lockstep.
+	// Off by default: timing-sensitive callers (and tests) stay deterministic.
+	jitter bool
+	// gate caps in-flight HTTP attempts; nil means unlimited. Rate limiting
+	// alone lets a hundred goroutines pile up on the wire.
+	gate chan struct{}
 }
 
 type requestWindow struct {
@@ -54,6 +62,64 @@ func (l *RequestLimiter) configure(perSecond, perMinute float64) error {
 	}
 	l.changed = make(chan struct{})
 	return nil
+}
+
+// EnableJitter adds up to 20% (max 250ms) to every positive wait. Production
+// wiring turns it on; the zero value keeps exact timings.
+func (l *RequestLimiter) EnableJitter() {
+	l.mu.Lock()
+	l.jitter = true
+	l.mu.Unlock()
+}
+
+// EnableConcurrency gates in-flight HTTP attempts. The cap is derived from the
+// per-second budget (at least 4, at most 32) because a larger in-flight set can
+// never be granted slots inside one second; with no rate set it stays unlimited.
+func (l *RequestLimiter) EnableConcurrency() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	perSecond := 0.0
+	for _, w := range l.windows {
+		if w.period == time.Second && w.limit > 0 {
+			perSecond = w.limit
+		}
+	}
+	if perSecond <= 0 {
+		l.gate = nil
+		return
+	}
+	n := int(math.Ceil(perSecond))
+	if n < 4 {
+		n = 4
+	}
+	if n > 32 {
+		n = 32
+	}
+	if cap(l.gate) != n {
+		l.gate = make(chan struct{}, n)
+	}
+}
+
+// acquire takes a concurrency slot, returning the channel to hand back.
+func (l *RequestLimiter) acquire(ctx context.Context) (chan struct{}, error) {
+	l.mu.Lock()
+	gate := l.gate
+	l.mu.Unlock()
+	if gate == nil {
+		return nil, ctx.Err()
+	}
+	select {
+	case gate <- struct{}{}:
+		return gate, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+}
+
+func (l *RequestLimiter) release(gate chan struct{}) {
+	if gate != nil {
+		<-gate
+	}
 }
 
 // wait counts a request only when it may actually proceed. Waiters recheck both
@@ -110,7 +176,17 @@ func (l *RequestLimiter) wait(ctx context.Context) error {
 			return nil
 		}
 		changed := l.changed
+		jitter := l.jitter
 		l.mu.Unlock()
+		if jitter {
+			spread := delay / 5
+			if spread > 250*time.Millisecond {
+				spread = 250 * time.Millisecond
+			}
+			if spread > 0 {
+				delay += time.Duration(rand.Int64N(int64(spread)))
+			}
+		}
 		timer := time.NewTimer(delay)
 		select {
 		case <-ctx.Done():
@@ -129,6 +205,11 @@ type rateLimitedTransport struct {
 }
 
 func (t rateLimitedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	gate, err := t.limiter.acquire(req.Context())
+	if err != nil {
+		return nil, err
+	}
+	defer t.limiter.release(gate)
 	if err := t.limiter.wait(req.Context()); err != nil {
 		return nil, err
 	}

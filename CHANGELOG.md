@@ -4,6 +4,35 @@
 
 ## [Unreleased]
 
+### 下一次维护 · 用户反馈与已知问题（2026-10-16 记录）
+
+#### 1. 界面偏好重启后丢失（用户反馈：暗色主题变回白色、侧边栏"固定"变回独立）
+
+- **根因（已定位到代码）**：界面偏好（`theme_mode` / `theme_preset` / `font` / `content_layout` / `navbar_style` / `sidebar_variant` / `sidebar_collapsible`）在 `web/src/lib/preferences/preferences-config.ts` 中全部配置为 `client-cookie`；而 **cookie 与 localStorage 都按 origin（host:port）隔离**。桌面壳 `shell/main.js` 的 `choosePort()` 只在 `PREF_PORT..PREF_PORT+19`（默认 8787–8806）里挑**空闲**端口，**不会复用已在运行的 ARTEX** —— 于是只要 8787 被占用（残留的 artex.exe / 其它程序），本次启动就落到 8788… 这一新 origin，上次保存的偏好全部不可见，回落默认值 `theme_mode: "light"` / `sidebar_variant: "floating"`，正是用户看到的"白色 + 侧边栏独立"。
+- 注意：`localhost` 与 `127.0.0.1` 也是**不同 origin** —— 浏览器里混用两者会造成同样的"设置不跟随"。
+- 待办（按优先级）：
+  - [ ] **P0（壳）复用已运行的实例**：启动时先探测 `PREF_PORT` 的 `/api/health`，若 `service=artex` 则直接复用该端口（origin 稳定），不再另起一套栈。
+  - [ ] **P0（壳）端口被非 ARTEX 占用时明确告知**：诊断页写明"换端口会导致界面偏好丢失"，并给出关闭占用程序的指引。
+  - [ ] **P0（壳）退出清理加固**：`app.on('before-quit')` 已有 `artexChild.kill()`，但强杀/崩溃路径不生效；补 `will-quit` 与异常退出清理，并等待端口释放，避免下次启动因残留进程而换端口。
+  - [ ] **P1（根治）偏好改存服务端**：新增 `GET/PUT /api/preferences`（落 `config/preferences.json`），`web/src/scripts/theme-boot.tsx` 从服务端注入值读取、`lib/preferences/preferences-storage.ts` 的 `persistPreference` 写服务端 ⇒ 与端口 / host 别名彻底无关。
+  - [ ] **P1（备选，改动更小）**：由桌面壳持久化偏好（存壳的配置目录），每次启动通过 `preload` / `executeJavaScript` 把偏好种进当前 origin，并监听页面变更回写。
+  - [ ] **P2**：文档明确"布局偏好改 localStorage 也不算修复"（同样 origin 隔离），避免以后走回头路。
+
+#### 2. 右下角企鹅水印希望能隐藏（用户反馈）
+
+- 现状：`web/src/components/penguin-backdrop.tsx` 渲染 `<img src="/penguin.png">`，`position: fixed`（右下、`height: 58vh`、`pointer-events: none`、`z-index: 0`），由 `web/src/app/(main)/layout.tsx` 常驻挂载；**同时该组件承担"移除皮肤两层全屏叠层"的常驻 CSS**（`[data-theme-preset="endfield"] body::before/::after { display: none }` 与 `[data-slot="sidebar-inset"] { background: transparent }`）。**目前没有开关**。
+- 待办：
+  - [ ] 增加开关（建议走服务端配置：`config.json` 的 `ui.hidePenguin` 或 `/api/preferences` 的 `penguin: on|off`），默认保持"显示"。
+  - [ ] 实现时必须**只移除企鹅本体**，保留上述两条常驻规则（否则扫描线/颗粒会回来、工作区底色也会变）。
+  - [ ] 可选档位：仅"隐藏 / 显示"，或再加"更小尺寸 / 更低透明度"。
+
+#### 3. 卸载残留（2026-10-15 实测，待修）
+
+- [ ] **卸载/退出不停止 PostgreSQL**：实测关闭后仍有多个 `postgres.exe` 存活（2026-10-16 复核：**9 个进程 + 5433 仍在监听**，而 `artex.exe` 已退出）⇒ 旧集群占着端口，正是上面"偏好丢失"的常见触发条件。
+- [ ] **卸载会删 `$INSTDIR`（含 `pgdata`）** ⇒ 数据库与用户数据一并丢失，且无二次确认；应在删除前显式询问"是否保留数据目录"。
+- [ ] **卸载不清理残留**：注册表卸载项与桌面/开始菜单快捷方式（`ARTEX Endfield.lnk` 等）。
+- [ ] 建议卸载顺序：**停止后端 → 停止 PostgreSQL → 再删文件**，并在安装目录留 `uninstall.log` 便于复盘。
+
 ## [0.3.18] - 2026-10-12
 
 ### 审批审查
