@@ -12,7 +12,8 @@ export type ResolvedThemeMode = "light" | "dark";
 
 export const THEME_PRESET_OPTIONS = [
   {
-    label: "Default",
+    // 没有 default.css：这一档等于"不叠加任何预设"，也就是内置的终末地外观。
+    label: "默认（内置外观）",
     value: "default",
     primary: {
       light: "oklch(0.205 0 0)",
@@ -20,7 +21,7 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    label: "Brutalist",
+    label: "粗野主义",
     value: "brutalist",
     primary: {
       light: "oklch(0.6489 0.237 26.9728)",
@@ -28,7 +29,7 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    label: "Endfield",
+    label: "终末地",
     value: "endfield",
     primary: {
       light: "#F4ED17",
@@ -36,7 +37,7 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    label: "Soft Pop",
+    label: "柔彩",
     value: "soft-pop",
     primary: {
       light: "oklch(0.5106 0.2301 276.9656)",
@@ -44,7 +45,7 @@ export const THEME_PRESET_OPTIONS = [
     },
   },
   {
-    label: "Tangerine",
+    label: "橘子",
     value: "tangerine",
     primary: {
       light: "oklch(0.64 0.17 36.44)",

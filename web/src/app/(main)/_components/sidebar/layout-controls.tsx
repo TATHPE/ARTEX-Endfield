@@ -152,6 +152,9 @@ export function LayoutControls() {
           <div className="space-y-3 **:data-[slot=toggle-group]:w-full **:data-[slot=toggle-group-item]:flex-1 **:data-[slot=toggle-group-item]:text-xs">
             <div className="space-y-1">
               <Label className="font-medium text-xs">主题预设</Label>
+              <p className="text-muted-foreground text-[11px] leading-snug">
+                「默认（内置外观）」就是终末地皮肤；想换配色请选橘子／柔彩／粗野主义。
+              </p>
               <Select value={themePreset} onValueChange={onThemePresetChange}>
                 <SelectTrigger size="sm" className="w-full text-xs">
                   <SelectValue placeholder="选择预设" />
