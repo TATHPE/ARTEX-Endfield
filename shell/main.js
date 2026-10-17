@@ -20,8 +20,8 @@
 //      exit 0 -> quit, 75 -> restart at once (in-page update), other -> backoff
 'use strict';
 
-const { app, BrowserWindow, ipcMain, shell, Menu, screen } = require('electron');
-const { spawn } = require('node:child_process');
+const { app, BrowserWindow, ipcMain, shell, Menu, screen, Notification } = require('electron');
+const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const net = require('node:net');
@@ -177,6 +177,39 @@ async function waitHealth(limitMs) {
     await new Promise((r) => setTimeout(r, 500));
   }
   return null;
+}
+
+// Probe a running ARTEX instance (its /api/health reports service=artex).
+// Reusing it keeps the ORIGIN (host:port) stable — UI preferences live in
+// origin-scoped cookies, so landing on another port silently resets them.
+async function probeArtex(baseUrl) {
+  try {
+    const res = await fetch(`${baseUrl}/api/health`, { signal: AbortSignal.timeout(2500) });
+    if (!res.ok) return null;
+    const body = await res.json();
+    if (body && body.service === 'artex') return body;
+  } catch {
+    /* not up, or not artex */
+  }
+  return null;
+}
+
+// Stop the portable cluster this shell supervises. Without this the next launch
+// finds 5433 (and often the HTTP port) still held by an orphaned postmaster,
+// which is what pushes the app onto another port and resets its preferences.
+function stopPostgres() {
+  const pgData = path.join(PG_ROOT, 'pgdata');
+  const pgCtl = path.join(PG_ROOT, 'pgsql', 'bin', 'pg_ctl.exe');
+  if (!fs.existsSync(pgData) || !fs.existsSync(pgCtl)) return;
+  try {
+    const r = spawnSync(pgCtl, ['-D', pgData, 'stop', '-m', 'fast', '-w', '-t', '20'], {
+      windowsHide: true,
+      stdio: 'ignore',
+    });
+    logLine(`postgres stop rc=${r.status}`);
+  } catch (err) {
+    logLine(`postgres stop failed: ${err}`);
+  }
 }
 
 // Output must go to a file descriptor, not a pipe (see the header comment).
@@ -608,6 +641,22 @@ async function boot() {
 
   // 1. preflight + ports (never let a busy port or a missing runtime end in a
   //    window that loads nothing)
+  // 0. Reuse a running instance: same origin, so the user's preferences survive.
+  const running = await probeArtex(`http://127.0.0.1:${PREF_PORT}`);
+  if (running) {
+    PORT = PREF_PORT;
+    APP_URL = `http://127.0.0.1:${PORT}`;
+    logLine(`reusing running ARTEX at ${APP_URL} (version ${running.version || '?'})`);
+    if (mainWin && !mainWin.isDestroyed()) {
+      try {
+        await mainWin.webContents.loadURL(APP_URL);
+      } catch (err) {
+        logLine(`reuse load failed: ${err}`);
+      }
+    }
+    return;
+  }
+
   const items = preflight();
   for (const it of items) logLine(`preflight ${it.level}: ${it.title} - ${it.detail}`);
 
@@ -620,6 +669,20 @@ async function boot() {
   DB_PORT = PREF_DB_PORT;
   if (PORT !== PREF_PORT || PROXY_PORT !== PREF_PROXY_PORT) {
     logLine(`ports in use: http=${PORT} proxy=${PROXY_PORT}`);
+  }
+
+  if (PORT !== PREF_PORT) {
+    logLine(
+      `port ${PREF_PORT} is held by another service; UI preferences are per-origin and will not follow to port ${PORT}`,
+    );
+    try {
+      new Notification({
+        title: 'ARTEX 端口被占用',
+        body: `${PREF_PORT} 已被其它程序占用，本次改用 ${PORT}。界面设置与登录状态按端口隔离，可能不会跟随。`,
+      }).show();
+    } catch {
+      /* notifications unavailable */
+    }
   }
 
   const blockers = items.filter((it) => it.level === 'error');
@@ -697,6 +760,9 @@ if (!gotLock) {
         /* ignore */
       }
     }
+    // Leaving PostgreSQL behind is what breaks the NEXT launch (port held =>
+    // origin changes => preferences reset). Stop it cleanly.
+    stopPostgres();
   });
 }
 
