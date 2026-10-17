@@ -1,6 +1,6 @@
 {
   "name": "artex-endfield-shell",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "private": true,
   "description": "ARTEX desktop shell (Endfield theme): boot animation + native window + local stack supervision",
   "main": "main.js",

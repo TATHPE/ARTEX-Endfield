@@ -704,6 +704,7 @@ func (s *Server) Handler() http.Handler {
 
 	mux.HandleFunc("GET /api/health", s.health)
 	mux.HandleFunc("GET /api/ui-config", s.uiConfig)
+	mux.HandleFunc("PUT /api/ui-config", s.uiConfig)
 	mux.HandleFunc("GET /api/stats", s.stats)
 	mux.HandleFunc("GET /api/logs", s.getLogs)
 	mux.HandleFunc("GET /api/logs/history", s.getLogsHistory)
@@ -1012,11 +1013,38 @@ func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"ok": true, "service": "artex", "version": BuildVersion})
 }
 
-// uiConfig exposes display switches for the web app (currently the Endfield
-// penguin watermark). Read from config.json per request so an edit takes effect
-// on the next page load without restarting the backend.
+const settingUIHidePenguin = "ui_hide_penguin"
+
+// uiConfig is the display-switch endpoint the web app reads at boot and the
+// settings page writes. GET stays open (the page needs it before anything else
+// is authorised); PUT is authenticated like every other settings write.
+// config.json's ui.hide_penguin remains the deployment default for fresh
+// installs, while the stored value wins once a user flips the switch.
 func (s *Server) uiConfig(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, 200, map[string]any{"hide_penguin": config.Load().UI.HidePenguin})
+	if r.Method == http.MethodPut {
+		var body struct {
+			HidePenguin *bool `json:"hide_penguin"`
+		}
+		if err := json.NewDecoder(io.LimitReader(r.Body, 4096)).Decode(&body); err != nil || body.HidePenguin == nil {
+			writeErr(w, 400, "需要 hide_penguin 布尔值")
+			return
+		}
+		if err := s.m.PG().SetBool(settingUIHidePenguin, *body.HidePenguin); err != nil {
+			writeErr(w, 500, err.Error())
+			return
+		}
+		writeJSON(w, 200, map[string]any{"hide_penguin": *body.HidePenguin})
+		return
+	}
+	writeJSON(w, 200, map[string]any{"hide_penguin": s.uiHidePenguin()})
+}
+
+// uiHidePenguin returns the stored switch, falling back to config.json.
+func (s *Server) uiHidePenguin() bool {
+	if v, ok, err := s.m.PG().GetSetting(settingUIHidePenguin); err == nil && ok {
+		return v == "1" || v == "true"
+	}
+	return config.Load().UI.HidePenguin
 }
 
 func (s *Server) stats(w http.ResponseWriter, r *http.Request) {

@@ -45,6 +45,16 @@ export function PenguinBackdrop() {
       alive = false;
     };
   }, []);
+  // The settings switch flips this without a reload: the card dispatches the new
+  // value after a successful save.
+  useEffect(() => {
+    const onConfig = (event: Event) => {
+      const detail = (event as CustomEvent<{ hide_penguin?: boolean }>).detail;
+      if (detail && typeof detail.hide_penguin === "boolean") setHidden(detail.hide_penguin);
+    };
+    window.addEventListener("artex:ui-config", onConfig);
+    return () => window.removeEventListener("artex:ui-config", onConfig);
+  }, []);
 
   return (
     <>

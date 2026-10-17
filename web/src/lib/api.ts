@@ -911,6 +911,8 @@ export const api = {
 
   // ---- app settings (runtime toggles) ----
   settings: () => get<Settings>(`/settings`),
+  uiConfig: () => get<{ hide_penguin: boolean }>("/ui-config"),
+  saveUiConfig: (value: { hide_penguin: boolean }) => put<{ hide_penguin: boolean }>("/ui-config", value),
   basicAuthSettings: () => get<{ enabled: boolean; username: string; password_set: boolean }>("/settings/basic-auth"),
   setBasicAuthSettings: (settings: { enabled: boolean; username: string; password: string }) =>
     put<{ enabled: boolean; username: string; password_set: boolean }>("/settings/basic-auth", settings),
