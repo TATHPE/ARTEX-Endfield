@@ -24,10 +24,17 @@ type Database struct {
 	SSLMode  string `json:"sslmode"`
 }
 
+// UI carries display switches the web app reads at boot. Zero values keep the
+// shipped look (the Endfield watermark stays visible).
+type UI struct {
+	HidePenguin bool `json:"hide_penguin"`
+}
+
 // Config is the on-disk config file shape.
 type Config struct {
 	Database Database `json:"database"`
 	SkillDir string   `json:"skill_dir"`
+	UI       UI       `json:"ui"`
 }
 
 // BaseDir is the directory that anchors all runtime artifacts (config.json and

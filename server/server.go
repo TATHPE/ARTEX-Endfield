@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/Autumn-27/artex/agent"
+	"github.com/Autumn-27/artex/config"
 	"github.com/Autumn-27/artex/db"
 	"github.com/Autumn-27/artex/intercept"
 	"github.com/Autumn-27/artex/llmpool"
@@ -697,6 +698,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PUT /api/settings/basic-auth", s.saveBasicAuthSettings)
 
 	mux.HandleFunc("GET /api/health", s.health)
+	mux.HandleFunc("GET /api/ui-config", s.uiConfig)
 	mux.HandleFunc("GET /api/stats", s.stats)
 	mux.HandleFunc("GET /api/logs", s.getLogs)
 	mux.HandleFunc("GET /api/logs/history", s.getLogsHistory)
@@ -1003,6 +1005,13 @@ func (s *Server) Handler() http.Handler {
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"ok": true, "service": "artex", "version": BuildVersion})
+}
+
+// uiConfig exposes display switches for the web app (currently the Endfield
+// penguin watermark). Read from config.json per request so an edit takes effect
+// on the next page load without restarting the backend.
+func (s *Server) uiConfig(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, 200, map[string]any{"hide_penguin": config.Load().UI.HidePenguin})
 }
 
 func (s *Server) stats(w http.ResponseWriter, r *http.Request) {

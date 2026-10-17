@@ -28,11 +28,27 @@ import { createPortal } from "react-dom";
  */
 export function PenguinBackdrop() {
   const [mounted, setMounted] = useState(false);
+  const [hidden, setHidden] = useState(false);
   useEffect(() => setMounted(true), []);
+  // The watermark is a shipped look, not a requirement: ui.hide_penguin in
+  // config.json turns the penguin off while the overlay rules below keep
+  // applying (they clear the scanline/grain layers and the inset background).
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/ui-config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (alive && j && j.hide_penguin) setHidden(true);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <>
-      {mounted
+      {mounted && !hidden
         ? createPortal(
             <div className="ef-pet" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
