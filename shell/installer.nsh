@@ -1,3 +1,22 @@
+!macro customInstall
+  ; electron-builder's template did not leave an uninstall key behind (verified:
+  ; no ARTEX entry under HKCU/HKLM .../Uninstall), so "Uninstall ARTEX.exe" could
+  ; not resolve $INSTDIR and exited immediately without deleting anything. Write
+  ; the standard per-user entry here; customUnInstall removes it again.
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "DisplayName" "ARTEX Endfield"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "UninstallString" '"$INSTDIR\Uninstall ARTEX.exe"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "DisplayIcon" "$INSTDIR\ARTEX.exe,0"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "Publisher" "ARTEX"
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "NoModify" 1
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield" "NoRepair" 1
+!macroend
+
+!macro customUnInstall
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\artex-endfield"
+!macroend
+
 !macro customRemoveFiles
   ; ---- 1) 先停 PostgreSQL：否则 postgres.exe 会一直占着 5433，
   ;         下次启动被挤到别的端口，界面偏好（按 origin 隔离）就丢了。
@@ -9,7 +28,7 @@
   DetailPrint "ARTEX: PostgreSQL stop rc=$0"
 pg_done:
 
-  ; ---- 2) 删除前自动备份用户数据（等同“二次确认”的安全版：无论用户怎么选都不丢数据）
+  ; ---- 2) 删除前自动备份用户数据（比"二次确认"更安全：怎么选都不丢）
   StrCpy $R0 "$LOCALAPPDATA\ARTEX\uninstall-backup"
   CreateDirectory "$R0"
   IfFileExists "$INSTDIR\resources\pgdata\*.*" 0 no_pg
