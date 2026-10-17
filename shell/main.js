@@ -26,6 +26,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const net = require('node:net');
 
+// Debug aid: a packaged build can expose the Chrome DevTools Protocol when the
+// environment asks for it (ARTEX_DEBUG_PORT=9333). This is how the live preference
+// state gets inspected without rebuilding; it is inert unless the variable is set.
+if (process.env.ARTEX_DEBUG_PORT) {
+  app.commandLine.appendSwitch('remote-debugging-port', String(process.env.ARTEX_DEBUG_PORT));
+}
+
 // --------------------------------------------------------------------- paths
 // Layouts this shell supports:
 //   dev            ARTEX_DIR points at the app folder
