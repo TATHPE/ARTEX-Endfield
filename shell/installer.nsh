@@ -61,7 +61,7 @@ no_data:
 
   ; ---- 3) 自己删目录（模板的删除依赖会被重置的 $INSTDIR，不可靠）
   DetailPrint "ARTEX: scheduling removal of $INSTDIR"
-  StrCpy $R2 "$TEMP\artex-uninstall-$RANDOM.cmd"
+  StrCpy $R2 "$TEMP\artex-uninstall.cmd"
   ClearErrors
   FileOpen $R3 "$R2" w
   IfErrors del_failed
