@@ -1,6 +1,6 @@
 {
   "name": "artex-endfield-shell",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "description": "ARTEX desktop shell (Endfield theme): boot animation + native window + local stack supervision",
   "main": "main.js",
@@ -46,7 +46,8 @@
       "deleteAppDataOnUninstall": false,
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico"
+      "installerHeaderIcon": "build/icon.ico",
+      "include": "installer.nsh"
     },
     "extraResources": [
       {
