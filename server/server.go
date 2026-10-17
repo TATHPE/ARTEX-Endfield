@@ -1000,7 +1000,7 @@ func (s *Server) Handler() http.Handler {
 	// /api/* goes through CORS + JWT; everything else is served by the embedded
 	// frontend (no JWT required; the optional Basic Auth gate wraps both). With the
 	// no-embed build the webui handler just 404s (run `next dev` separately).
-	api := cors(s.requireAuth(mux))
+	api := apiRateLimit(cors(s.requireAuth(mux)))
 	root := http.NewServeMux()
 	root.Handle("/api/", api)
 	root.Handle("/", s.webuiHandler())
@@ -4032,7 +4032,11 @@ func (s *Server) gc(w http.ResponseWriter, r *http.Request) {
 func securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := w.Header()
-		h.Set("Content-Security-Policy", "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; "+
+		// 'unsafe-inline' stays for script/style: the UI is a static Next export whose
+		// inline bootstrap (self.__next_f.push) changes per page, so a nonce would mean
+		// rewriting every HTML response and per-page hashes are impossible. Everything
+		// else that can be locked down is locked down here.
+		h.Set("Content-Security-Policy", "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; frame-src 'none'; worker-src 'self' blob:; "+
 			"script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "+
 			"font-src 'self' data:; connect-src 'self'")
 		h.Set("X-Content-Type-Options", "nosniff")
