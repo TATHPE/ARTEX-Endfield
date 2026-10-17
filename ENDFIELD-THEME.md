@@ -4,7 +4,7 @@
 
 > 设计基准来自第三方研究性图谱 `weepwood.github.io/arkfield-design-atlas` 的实测令牌（主黄 `#F4ED17`、结晶蓝 `#57BACD`、近黑 `#111416`/`#151719`、暖白 `#E8E8E2`/`#F3F3ED`、次要 `#646766`、分割线 `rgba(20,23,25,.17)`）。它是**风格基准，不是官方品牌规范**。
 
-## 一、改动清单（全部在 `web/`，未触碰后端逻辑）
+## 一、改动清单（主题部分全部在 `web/`；v2.2.2 起 fork 另含壳与后端安全修复，见 README / CHANGELOG）
 
 | 文件 | 作用 |
 | --- | --- |
@@ -16,6 +16,7 @@
 | `web/src/lib/preferences/preferences-config.ts` | 默认预设/字体切到 `endfield` |
 | `web/src/lib/preferences/theme.ts` | 由 `npm run generate:presets` 生成的 Endfield 预设条目（**别手改**） |
 | `web/src/app/globals.css`、`web/src/app/layout.tsx`、`web/src/app/(main)/layout.tsx`、`(auth)/login/page.tsx`、`(auth)/setup/page.tsx` | 引入上面两个覆盖层与皮肤；登录/首次设密成功后打「播一次加载页」的标记 |
+| `web/src/components/penguin-backdrop.tsx` + `web/src/app/(main)/_components/sidebar/layout-controls.tsx` | **v2.2.2 起**：右下角企鹅水印可在 **设置 →「界面」** 隐藏。`config.json` 的 `ui.hide_penguin` 只是部署默认值，用户切换后写库（`GET/PUT /api/ui-config`）；隐藏时只移除企鹅本体，`body::before/::after` 与侧栏透明的两条常驻规则必须保留（否则扫描线/颗粒会回来） |
 
 上游另外三套主题预设（`brutalist` / `soft-pop` / `tangerine`）**保留可用**。
 
@@ -39,9 +40,9 @@ go build -tags embedui -trimpath -ldflags "-s -w -buildid= -X main.version=<版�
 
 > Go 依赖：本机 `proxy.golang.org` 不通，请设 `GOPROXY=https://goproxy.cn,direct`（`GOSUMDB=off` 即可，`go.sum` 已提供完整性）。
 
-## 三、桌面窗口版（可选，不在本仓库内）
+## 三、桌面窗口版（壳源码见 `shell/`）
 
-仓库只产出 `artex.exe`（含内嵌界面）。如果希望**双击就弹独立窗口**而不是浏览器标签，需要外层的 Electron 壳 + NSIS 安装包（本 fork 的发行用），它做三件事：起便携 PostgreSQL → 起 `artex.exe`（注入 `artex-llm.env` 里的 LLM 配置）→ 等 `/api/health` 就绪后加载界面。
+仓库只产出 `artex.exe`（含内嵌界面）。如果希望**双击就弹独立窗口**而不是浏览器标签，需要外层的 Electron 壳 + NSIS 安装包（本 fork 的发行用），它做三件事：起便携 PostgreSQL → 起 `artex.exe`（注入 `artex-llm.env` 里的 LLM 配置）→ 等 `/api/health` 就绪后加载界面。壳源码自 2026-10-15 起已纳入本仓库的 `shell/`（`main.js` / `preload.js` / `diagnose.html` / `installer.nsh`），构建：`npx electron-builder --win nsis --x64`。
 
 ⚠️ **打包后的 Electron 应用不能放在非 ASCII 路径**（中文目录下会启动即退、不留日志）。**安装/解压路径请保持纯 ASCII**（例如 `D:\artex-win` 或 `%LOCALAPPDATA%\Programs\ARTEX`）。
 
@@ -71,11 +72,11 @@ go build -tags embedui -trimpath -ldflags "-s -w -buildid= -X main.version=<版�
 
 ## 六、与上游同步
 
-本改动是**单个提交**，落在 `endfield-theme` 分支上：
+主题改动最初是单个提交，落在 `endfield-theme` 分支上；v2.2.2 的壳与安全修复在同一分支上追加了多个提交：
 
 ```powershell
 git fetch origin
-git rebase origin/main endfield-theme     # 你的分支只有 1 个提交，冲突面很小
+git rebase origin/main endfield-theme     # 主题提交冲突面很小，壳/安全提交按需逐个处理
 ```
 
 推送到 fork 时注意：如果分支带上了改动 `.github/workflows/*` 的历史提交，GitHub 会要求 PAT 具备 **workflow** 权限；把提交 rebase 到 fork 自己的 `main` 之上即可规避（只需 `Contents: Read and write`）。

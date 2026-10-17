@@ -15,7 +15,7 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 
 > ## 🎨 本 fork 的改动：终末地（Arknights: Endfield）风格版
 >
-> 本仓库是上游 ARTEX 的 fork，除上游功能外，额外实现了**终末地风格的界面皮肤、窗口内开屏动画、登录后加载页与应用图标**。上游功能、API、数据库结构**完全保留**；改动**只集中在 `web/`**（后端逻辑未动），落在单个提交（分支 `endfield-theme`）。
+> 本仓库是上游 ARTEX 的 fork，除上游功能外，额外实现了**终末地风格的界面皮肤、窗口内开屏动画、登录后加载页与应用图标**。上游功能、API、数据库结构**完全保留**；主题与皮肤改动集中在 `web/`，另有壳（`shell/`）与后端安全加固的维护提交，全部落在分支 `endfield-theme`（v2.2.2 起已不是最初的单个提交）。
 >
 > | 改动 | 位置 |
 > | --- | --- |
@@ -50,6 +50,19 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 
 ---
 
+> ## 🛠 本 fork 的维护修复（v2.2.2 起）
+>
+> | 修复 | 说明 |
+> | --- | --- |
+> | **企鹅水印可隐藏** | 设置 →「界面」新增开关；默认值来自 `config.json` 的 `ui.hide_penguin`，切换后写入数据库设置（`GET/PUT /api/ui-config`） |
+> | **界面偏好不再因换端口丢失** | 壳先探测默认端口 8787（可用 `ARTEX_PORT` 覆盖）上已在运行的 ARTEX 并直接复用；端口被其它程序占用时提示"换端口会导致界面偏好丢失"；挂载时重新应用 `preset/font/layout/sidebar` |
+> | **安全加固** | LLM 端点 SSRF 拦截（拒绝 link-local / 云元数据地址）、登录失败锁定（5 次锁 1 分钟、每 5 次翻倍至 15 分钟）、全局 API 限流（600 次/分钟，429 + `Retry-After`）、更严的 CSP 与安全响应头、CORS 不再回显 `*` |
+> | **卸载保护** | 卸载前停便携 PostgreSQL，`pgdata` 与 `artex\data` 备份到 `%LOCALAPPDATA%\ARTEX\uninstall-backup`；注册表卸载键修复，`Uninstall ARTEX.exe` 可正常卸载 |
+>
+> 逐条变更见 [`CHANGELOG.md`](CHANGELOG.md) 的 `[2.2.2]`。
+
+---
+
 ## 截图预览
 
 > 下图为**本 fork 的终末地主题版**实机截图（Windows 独立窗口版，动画均在应用窗口内播放）。原始交互见上游[在线 Demo](https://artex-demo.vercel.app/)。
@@ -70,7 +83,7 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 | :---: |
 | ![应用图标](screenshots/endfield-icon.png) |
 
-| 工作台 · 右下角企鹅水印（**完整显示** · 固定不随滚动 · 随窗口等比缩放） |
+| 工作台 · 右下角企鹅水印（默认显示；v2.2.2 起可在 设置 →「界面」隐藏 · 固定不随滚动 · 随窗口等比缩放） |
 | :---: |
 | ![右下角企鹅](screenshots/endfield-penguin.png) |
 
@@ -342,6 +355,16 @@ CGO_ENABLED=0 go build -tags embedui -o artex ./cmd/artex
 可选：`ARTEX_LLM_PROVIDER` / `ARTEX_LLM_MODEL` / `ARTEX_LLM_BASE_URL` / `ARTEX_LLM_PROXY`。
 
 **并发**：每个任务的 work agent 数在「系统设置」里配置（默认 3）。
+
+**界面**（`config.json`，可选）：
+
+```json
+{
+  "ui": { "hide_penguin": false }
+}
+```
+
+`ui.hide_penguin` 是部署默认值（`false` = 显示企鹅水印）。用户在 设置 →「界面」切换后，以数据库里的开关为准（`/api/ui-config`），配置文件不再覆盖。
 
 **常用参数**：`./start.sh -addr :8787 -proxy :8788`（`-addr` 前端+API，`-proxy` 流量录制代理）。启动脚本会把参数原样透传给 `artex`。
 
