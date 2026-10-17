@@ -2,6 +2,15 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
+import {
+  applyContentLayout,
+  applyFont,
+  applyNavbarStyle,
+  applySidebarCollapsible,
+  applySidebarVariant,
+} from "@/lib/preferences/layout-utils";
+import { applyThemePreset } from "@/lib/preferences/theme-utils";
+
 import { type StoreApi, useStore } from "zustand";
 
 import { type FontKey, fontRegistry } from "@/lib/fonts/registry";
@@ -43,6 +52,15 @@ function readCookiePreference(key: string): string | undefined {
 function preferCookie(key: string, domValue: string | null): string | null {
   const cookie = readCookiePreference(key);
   return cookie ?? domValue;
+}
+
+function applyDisplayState(state: Partial<PreferencesState>) {
+  if (state.themePreset) applyThemePreset(state.themePreset);
+  if (state.font) applyFont(state.font);
+  if (state.contentLayout) applyContentLayout(state.contentLayout);
+  if (state.navbarStyle) applyNavbarStyle(state.navbarStyle);
+  if (state.sidebarVariant) applySidebarVariant(state.sidebarVariant);
+  if (state.sidebarCollapsible) applySidebarCollapsible(state.sidebarCollapsible);
 }
 
 function readDomState(): Partial<PreferencesState> {
@@ -120,6 +138,13 @@ export const PreferencesStoreProvider = ({
       isSynced: true,
     }));
 
+    // The <head> boot script never executes (it is emitted inside the RSC
+    // payload), so NOTHING applied preset/font/layout/sidebar to the document on
+    // a fresh load: only theme mode had an effect of its own, which is why the
+    // theme survived restarts while the preset and sidebar snapped back to the
+    // server-rendered defaults. Apply everything here.
+    applyDisplayState(domState);
+
     // Cold-start self-heal: the cookie store can still be warming up when the
     // first paint runs, in which case the read above only saw defaults. Re-read
     // once shortly after mount; a non-empty cookie value wins.
@@ -127,6 +152,7 @@ export const PreferencesStoreProvider = ({
       const fresh = readDomState();
       if (!fresh.themeMode && !fresh.themePreset) return;
       store.setState((prev) => ({ ...prev, ...fresh, isSynced: true }));
+      applyDisplayState(fresh);
       domSnapshotRef.current = fresh;
     }, 400);
     return () => clearTimeout(timer);
