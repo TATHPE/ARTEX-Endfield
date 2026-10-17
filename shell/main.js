@@ -219,6 +219,29 @@ function stopPostgres() {
   }
 }
 
+// Diagnostic (opt-in via ARTEX_DEBUG_PREFS=1): ask the renderer what it actually
+// resolved for the display preferences and write it into shell.log. This is how a
+// packaged build proves whether a preference was read back, with no debug port.
+async function logUiState(tag) {
+  if (!process.env.ARTEX_DEBUG_PREFS || !mainWin || mainWin.isDestroyed()) return;
+  try {
+    const state = await mainWin.webContents.executeJavaScript(`(() => {
+      const m = (n) => (document.cookie.match(new RegExp(n + "=([^;]+)")) || [])[1] || null;
+      return JSON.stringify({
+        domPreset: document.documentElement.getAttribute("data-theme-preset"),
+        cookiePreset: m("theme_preset"),
+        domMode: document.documentElement.getAttribute("data-theme-mode"),
+        cookieMode: m("theme_mode"),
+        domVariant: document.documentElement.getAttribute("data-sidebar-variant"),
+        cookieVariant: m("sidebar_variant"),
+      });
+    })()`);
+    logLine(`ui-state[${tag}] ${state}`);
+  } catch (err) {
+    logLine(`ui-state[${tag}] failed: ${err}`);
+  }
+}
+
 // Chromium restores the persistent cookie store asynchronously. A renderer that
 // reads document.cookie on its very first paint can therefore see an EMPTY jar,
 // which made saved preferences fall back to their defaults on every cold start.
@@ -740,6 +763,10 @@ async function boot() {
 
   if (mainWin && !mainWin.isDestroyed()) {
     await warmCookieStore();
+    mainWin.webContents.on("did-finish-load", () => {
+      void logUiState("loaded");
+      setTimeout(() => void logUiState("loaded+3s"), 3000);
+    });
     try {
       await mainWin.webContents.loadURL(APP_URL);
     } catch (err) {
