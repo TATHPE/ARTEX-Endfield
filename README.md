@@ -46,7 +46,7 @@ AI 自主渗透测试系统（Go 后端 + Next.js 前端）· **终末地（Arkn
 > | 安装包**内置 Node + REA 运行时**（开箱离线可用；**Ghidra / IDA 不内置**，按需自装） | 壳 `extraResources`：`payload/node`→`resources/node`、`payload/rea/node_modules`→`resources/rea/node_modules` |
 > | 集成说明（开箱行为 / 使用流程 / 已知限制 / MIT 署名 / 维护方法） | [`REA-INTEGRATION.md`](REA-INTEGRATION.md) |
 >
-> **合规前提**：REA 只用于**自有软件、自有资产或获得明确授权的目标**；页面预置的目标模板已写死"只读、单文件、不执行、不联网、不利用"。
+> **合规前提**：REA 只用于**自有软件、自有资产或获得明确授权的目标**。逆向分析页**预填**了「只读、单文件、不执行、不联网、不利用」的任务模板——**可修改、可一键重置**；修改模板即视为自行承担相应责任。
 
 ---
 
